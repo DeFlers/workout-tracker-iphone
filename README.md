@@ -1,12 +1,16 @@
 # Workout Tracker
 
-App web estático, mobile-first, feito com HTML/CSS/JS puro para acompanhar treinos no iPhone. Não usa backend, frameworks, bibliotecas externas nem imagens remotas obrigatórias.
+App web estático, mobile-first, feito com HTML/CSS/JS puro para acompanhar treinos no iPhone. Não usa backend, frameworks nem build step.
 
 ## Arquivos
 
 - `index.html`: app completo com CSS e JavaScript inline.
 - `manifest.webmanifest`: metadados PWA para instalação.
 - `.nojekyll`: evita processamento pelo Jekyll no GitHub Pages.
+
+## Mídia dos exercícios
+
+Os cards usam GIFs públicos da ExerciseDB API (`oss.exercisedb.dev` / `static.exercisedb.dev`) e mantêm emojis nativos como fallback visual caso alguma mídia externa não carregue.
 
 ## Publicar no GitHub Pages
 

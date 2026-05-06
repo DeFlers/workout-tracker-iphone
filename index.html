@@ -24,6 +24,7 @@
       --card: rgba(255, 250, 241, 0.92);
       --line: rgba(114, 67, 50, 0.18);
       --shadow: 0 18px 42px rgba(76, 48, 33, 0.13);
+      --shadow-strong: 0 22px 54px rgba(76, 48, 33, 0.18);
       --footer: 130px;
     }
 
@@ -44,8 +45,9 @@
       min-height: 100%;
       margin: 0;
       background:
-        radial-gradient(circle at 10% 0%, rgba(223, 232, 216, 0.9), transparent 30%),
-        linear-gradient(180deg, #fff7ea 0%, #f3dfc5 47%, #e8cdb2 100%);
+        radial-gradient(circle at 0% 0%, rgba(255, 250, 241, 0.94), transparent 26%),
+        radial-gradient(circle at 100% 10%, rgba(223, 232, 216, 0.9), transparent 28%),
+        linear-gradient(180deg, #fff7ea 0%, #f1dcc1 48%, #e5c8a9 100%);
       color: var(--ink);
     }
 
@@ -67,6 +69,17 @@
       display: grid;
       gap: 16px;
       padding-top: 4px;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -10px -10px auto;
+      height: 185px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255, 250, 241, 0.7), rgba(223, 232, 216, 0.28));
+      z-index: -1;
     }
 
     .topline,
@@ -173,8 +186,19 @@
     }
 
     .summary-card {
-      min-height: 88px;
+      min-height: 98px;
       padding: 12px 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .summary-card::after {
+      content: attr(data-icon);
+      position: absolute;
+      right: 9px;
+      bottom: 7px;
+      font-size: 1.6rem;
+      opacity: 0.18;
     }
 
     .summary-card span,
@@ -197,11 +221,28 @@
     }
 
     .tip {
-      padding: 14px;
+      padding: 15px 15px 15px 46px;
       color: #4c463c;
       font-size: 0.95rem;
       line-height: 1.45;
+      position: relative;
       background: linear-gradient(135deg, rgba(255, 250, 241, 0.95), rgba(223, 232, 216, 0.78));
+    }
+
+    .tip::before {
+      content: "✦";
+      position: absolute;
+      left: 16px;
+      top: 17px;
+      display: grid;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(159, 98, 72, 0.13);
+      color: var(--terracotta-dark);
+      font-size: 0.9rem;
+      font-weight: 900;
     }
 
     .week-strip,
@@ -268,18 +309,85 @@
       overflow: hidden;
       padding: 0;
       transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+      box-shadow: var(--shadow-strong);
     }
 
     .exercise-main {
       width: 100%;
-      padding: 15px;
+      padding: 13px;
       background: transparent;
       text-align: left;
+    }
+
+    .exercise-visual {
+      position: relative;
+      display: grid;
+      min-height: 168px;
+      margin-bottom: 13px;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid rgba(114, 67, 50, 0.12);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(255, 250, 241, 0.78), rgba(223, 232, 216, 0.58)),
+        radial-gradient(circle at 80% 12%, rgba(159, 98, 72, 0.18), transparent 26%);
+    }
+
+    .exercise-visual img {
+      width: 100%;
+      height: 168px;
+      object-fit: contain;
+      mix-blend-mode: multiply;
+      opacity: 0;
+      transform: scale(0.98);
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .exercise-visual img.loaded {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .exercise-emoji {
+      position: absolute;
+      display: grid;
+      width: 86px;
+      height: 86px;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(255, 250, 241, 0.78);
+      box-shadow: inset 0 0 0 1px rgba(114, 67, 50, 0.12), 0 14px 30px rgba(76, 48, 33, 0.12);
+      font-size: 2.55rem;
+      line-height: 1;
+    }
+
+    .exercise-visual img.loaded + .exercise-emoji {
+      opacity: 0;
+    }
+
+    .source-pill {
+      position: absolute;
+      right: 9px;
+      bottom: 9px;
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: rgba(47, 41, 35, 0.68);
+      color: rgba(255, 250, 241, 0.92);
+      font-size: 0.68rem;
+      font-weight: 850;
+      letter-spacing: 0.02em;
     }
 
     .exercise-card.done {
       border-color: rgba(109, 138, 111, 0.5);
       background: rgba(241, 248, 235, 0.92);
+    }
+
+    .exercise-card.done .exercise-visual {
+      border-color: rgba(109, 138, 111, 0.26);
+      background:
+        linear-gradient(135deg, rgba(241, 248, 235, 0.86), rgba(255, 250, 241, 0.75)),
+        radial-gradient(circle at 82% 16%, rgba(109, 138, 111, 0.22), transparent 28%);
     }
 
     .check {
@@ -390,7 +498,7 @@
       left: 0;
       z-index: 20;
       padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
-      background: rgba(55, 44, 35, 0.92);
+      background: linear-gradient(135deg, rgba(55, 44, 35, 0.95), rgba(83, 59, 45, 0.94));
       color: #fffaf1;
       box-shadow: 0 -18px 40px rgba(46, 35, 27, 0.22);
       backdrop-filter: blur(18px);
@@ -515,15 +623,15 @@
       </div>
 
       <div class="summary-grid">
-        <div class="summary-card">
+        <div class="summary-card" data-icon="📅">
           <span>Treino</span>
           <strong id="summaryWorkout">Descanso</strong>
         </div>
-        <div class="summary-card">
+        <div class="summary-card" data-icon="◔">
           <span>Progresso</span>
           <strong id="summaryProgress">0%</strong>
         </div>
-        <div class="summary-card">
+        <div class="summary-card" data-icon="☰">
           <span>Séries</span>
           <strong id="summarySets">0</strong>
         </div>
@@ -574,6 +682,33 @@
       3: "legs",
       4: "push-b",
       5: "pull-b"
+    };
+    const exerciseMedia = {
+      "push-a-0": { emoji: "🏋️‍♂️", gifUrl: "https://static.exercisedb.dev/media/1qrWgZ2.gif" },
+      "push-a-1": { emoji: "🏋️‍♂️", gifUrl: "https://static.exercisedb.dev/media/1PLE8e9.gif" },
+      "push-a-2": { emoji: "🔻", gifUrl: "https://static.exercisedb.dev/media/05Cf2v8.gif" },
+      "push-a-3": { emoji: "🔻", gifUrl: "https://static.exercisedb.dev/media/1xHyxys.gif" },
+      "push-a-4": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/2gPfomN.gif" },
+      "pull-a-0": { emoji: "🦅", gifUrl: "https://static.exercisedb.dev/media/4c9BhzB.gif" },
+      "pull-a-1": { emoji: "💪", gifUrl: "https://static.exercisedb.dev/media/1V1gj1u.gif" },
+      "pull-a-2": { emoji: "💪", gifUrl: "https://static.exercisedb.dev/media/0IgNjSM.gif" },
+      "pull-a-3": { emoji: "🛡️", gifUrl: "https://static.exercisedb.dev/media/1DN3iz4.gif" },
+      "pull-a-4": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/1IG6gVF.gif" },
+      "legs-0": { emoji: "🦵", gifUrl: "https://static.exercisedb.dev/media/10Z2DXU.gif" },
+      "legs-1": { emoji: "🦵", gifUrl: "https://static.exercisedb.dev/media/17lJ1kr.gif" },
+      "legs-2": { emoji: "🦵", gifUrl: "https://static.exercisedb.dev/media/0lQnxMZ.gif" },
+      "legs-3": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/03lzqwk.gif" },
+      "legs-4": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/225x2Vd.gif" },
+      "push-b-0": { emoji: "🔻", gifUrl: "https://static.exercisedb.dev/media/3ZflifB.gif" },
+      "push-b-1": { emoji: "🛡️", gifUrl: "https://static.exercisedb.dev/media/67n3r98.gif" },
+      "push-b-2": { emoji: "💥", gifUrl: "https://static.exercisedb.dev/media/0CXGHya.gif" },
+      "push-b-3": { emoji: "🔻", gifUrl: "https://static.exercisedb.dev/media/1cTf2Ux.gif" },
+      "push-b-4": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/1GPHRyK.gif" },
+      "pull-b-0": { emoji: "🦅", gifUrl: "https://static.exercisedb.dev/media/0V2YQjW.gif" },
+      "pull-b-1": { emoji: "🦅", gifUrl: "https://static.exercisedb.dev/media/4f8RXP8.gif" },
+      "pull-b-2": { emoji: "💪", gifUrl: "https://static.exercisedb.dev/media/1VpF8db.gif" },
+      "pull-b-3": { emoji: "⛰️", gifUrl: "https://static.exercisedb.dev/media/cbuFJrn.gif" },
+      "pull-b-4": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/196HJGw.gif" }
     };
     const workouts = [
       {
@@ -785,9 +920,15 @@
 
       els.workoutList.innerHTML = workout.exercises.map((exercise, index) => {
         const done = completed.includes(index);
+        const media = exerciseMedia[`${workout.id}-${index}`] || { emoji: "🏋️‍♂️", gifUrl: "" };
         return `
           <article class="exercise-card ${done ? "done" : ""}">
             <button class="exercise-main" type="button" data-index="${index}" aria-pressed="${done}">
+              <div class="exercise-visual" aria-hidden="true">
+                ${media.gifUrl ? `<img src="${media.gifUrl}" alt="" loading="lazy" decoding="async">` : ""}
+                <span class="exercise-emoji">${media.emoji}</span>
+                <span class="source-pill">ExerciseDB</span>
+              </div>
               <div class="exercise-head">
                 <div>
                   <span class="exercise-label">${exercise.group}</span>
@@ -812,6 +953,12 @@
 
       els.workoutList.querySelectorAll(".exercise-main").forEach(button => {
         button.addEventListener("click", () => toggleExercise(workout.id, Number(button.dataset.index)));
+      });
+
+      els.workoutList.querySelectorAll(".exercise-visual img").forEach(image => {
+        image.addEventListener("load", () => image.classList.add("loaded"));
+        image.addEventListener("error", () => image.remove());
+        if (image.complete && image.naturalWidth) image.classList.add("loaded");
       });
     }
 
