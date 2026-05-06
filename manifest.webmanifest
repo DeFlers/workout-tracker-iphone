@@ -1,0 +1,12 @@
+{
+  "name": "Workout Tracker",
+  "short_name": "Workout",
+  "lang": "pt-BR",
+  "description": "Workout Tracker mobile-first para iPhone.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#9f6248",
+  "background_color": "#fbf4e8",
+  "orientation": "portrait"
+}

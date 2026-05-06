@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#9f6248">
+  <meta name="description" content="Workout Tracker mobile-first para acompanhar treinos, progresso, streak e descanso no iPhone.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Workout">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>Workout Tracker</title>
+  <style>
+    :root {
+      --cream: #fbf4e8;
+      --sand: #edd9be;
+      --sand-2: #d9bc98;
+      --terracotta: #9f6248;
+      --terracotta-dark: #724332;
+      --sage: #6d8a6f;
+      --sage-soft: #dfe8d8;
+      --ink: #2f2923;
+      --muted: #786c5e;
+      --card: rgba(255, 250, 241, 0.92);
+      --line: rgba(114, 67, 50, 0.18);
+      --shadow: 0 18px 42px rgba(76, 48, 33, 0.13);
+      --footer: 130px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    body {
+      min-height: 100%;
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(223, 232, 216, 0.9), transparent 30%),
+        linear-gradient(180deg, #fff7ea 0%, #f3dfc5 47%, #e8cdb2 100%);
+      color: var(--ink);
+    }
+
+    button {
+      border: 0;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(100%, 520px);
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: calc(18px + env(safe-area-inset-top)) 16px calc(var(--footer) + env(safe-area-inset-bottom));
+    }
+
+    .hero {
+      display: grid;
+      gap: 16px;
+      padding-top: 4px;
+    }
+
+    .topline,
+    .title-row,
+    .meta-row,
+    .summary-grid,
+    .exercise-head,
+    .exercise-meta,
+    .timer-bar,
+    .quick-buttons,
+    .week-strip,
+    .tabs {
+      display: flex;
+    }
+
+    .topline,
+    .title-row,
+    .meta-row,
+    .exercise-head,
+    .timer-bar {
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 10vw, 3.35rem);
+      line-height: 0.93;
+      letter-spacing: 0;
+      color: var(--terracotta-dark);
+    }
+
+    .date {
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .streak {
+      flex: 0 0 auto;
+      border: 1px solid rgba(109, 138, 111, 0.25);
+      border-radius: 999px;
+      padding: 9px 12px;
+      background: rgba(223, 232, 216, 0.8);
+      color: #415f44;
+      font-size: 0.9rem;
+      font-weight: 800;
+      box-shadow: 0 8px 20px rgba(65, 95, 68, 0.12);
+    }
+
+    .progress-wrap {
+      display: grid;
+      gap: 8px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      overflow: hidden;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(114, 67, 50, 0.12);
+      box-shadow: inset 0 1px 2px rgba(76, 48, 33, 0.08);
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--sage), #b87959);
+      transition: width 280ms ease;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+
+    .summary-card,
+    .tip,
+    .exercise-card,
+    .rest-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-card {
+      min-height: 88px;
+      padding: 12px 10px;
+    }
+
+    .summary-card span,
+    .exercise-label,
+    .meta-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .summary-card strong {
+      display: block;
+      margin-top: 9px;
+      color: var(--terracotta-dark);
+      font-size: 1.05rem;
+      line-height: 1.05;
+    }
+
+    .tip {
+      padding: 14px;
+      color: #4c463c;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      background: linear-gradient(135deg, rgba(255, 250, 241, 0.95), rgba(223, 232, 216, 0.78));
+    }
+
+    .week-strip,
+    .tabs {
+      gap: 8px;
+      overflow-x: auto;
+      margin-inline: -16px;
+      padding: 0 16px 4px;
+      scrollbar-width: none;
+    }
+
+    .week-strip::-webkit-scrollbar,
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .week-pill,
+    .tab {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 250, 241, 0.72);
+      color: var(--muted);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .week-pill {
+      padding: 9px 11px;
+      font-size: 0.82rem;
+    }
+
+    .week-pill.active {
+      background: var(--sage-soft);
+      color: #425f43;
+      border-color: rgba(109, 138, 111, 0.36);
+    }
+
+    .tab {
+      min-height: 44px;
+      padding: 0 15px;
+      transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+    }
+
+    .tab.active {
+      background: var(--terracotta);
+      color: #fffaf1;
+      box-shadow: 0 10px 22px rgba(159, 98, 72, 0.24);
+    }
+
+    .section-title {
+      margin: 18px 0 10px;
+      color: var(--terracotta-dark);
+      font-size: 1.18rem;
+      line-height: 1.1;
+    }
+
+    .workout-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .exercise-card {
+      overflow: hidden;
+      padding: 0;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .exercise-main {
+      width: 100%;
+      padding: 15px;
+      background: transparent;
+      text-align: left;
+    }
+
+    .exercise-card.done {
+      border-color: rgba(109, 138, 111, 0.5);
+      background: rgba(241, 248, 235, 0.92);
+    }
+
+    .check {
+      display: grid;
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 2px solid rgba(159, 98, 72, 0.28);
+      border-radius: 50%;
+      color: transparent;
+      font-size: 1.2rem;
+      font-weight: 900;
+      transition: all 180ms ease;
+    }
+
+    .exercise-card.done .check {
+      border-color: var(--sage);
+      background: var(--sage);
+      color: white;
+    }
+
+    .exercise-name {
+      margin: 0;
+      color: var(--ink);
+      font-size: 1.14rem;
+      line-height: 1.12;
+    }
+
+    .exercise-focus {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.35;
+    }
+
+    .exercise-meta {
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .meta-chip {
+      min-height: 33px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(237, 217, 190, 0.62);
+      color: var(--terracotta-dark);
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    details {
+      border-top: 1px solid var(--line);
+      background: rgba(255, 250, 241, 0.58);
+    }
+
+    summary {
+      min-height: 48px;
+      padding: 14px 15px;
+      color: var(--terracotta-dark);
+      font-weight: 850;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: "+";
+      float: right;
+      color: var(--sage);
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    details[open] summary::after {
+      content: "-";
+    }
+
+    .technique {
+      margin: 0;
+      padding: 0 15px 16px;
+      color: #554c41;
+      font-size: 0.95rem;
+      line-height: 1.48;
+    }
+
+    .rest-card {
+      padding: 22px 18px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .rest-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--terracotta-dark);
+      font-size: 1.45rem;
+    }
+
+    .timer {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 20;
+      padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(55, 44, 35, 0.92);
+      color: #fffaf1;
+      box-shadow: 0 -18px 40px rgba(46, 35, 27, 0.22);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .timer-inner {
+      width: min(100%, 520px);
+      margin: 0 auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .timer-label {
+      margin: 0;
+      color: rgba(255, 250, 241, 0.72);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .timer-display {
+      font-variant-numeric: tabular-nums;
+      color: #fff3df;
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .timer-action,
+    .quick {
+      border-radius: 999px;
+      font-weight: 900;
+    }
+
+    .timer-action {
+      min-width: 104px;
+      min-height: 44px;
+      background: var(--sand);
+      color: var(--terracotta-dark);
+    }
+
+    .quick-buttons {
+      gap: 7px;
+    }
+
+    .quick {
+      flex: 1 1 0;
+      min-height: 36px;
+      background: rgba(255, 250, 241, 0.12);
+      color: rgba(255, 250, 241, 0.9);
+      border: 1px solid rgba(255, 250, 241, 0.16);
+      font-size: 0.86rem;
+    }
+
+    .quick.active {
+      background: var(--sage-soft);
+      color: #38583c;
+    }
+
+    .confetti {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 30;
+    }
+
+    .confetti i {
+      position: absolute;
+      top: -18px;
+      width: 9px;
+      height: 14px;
+      border-radius: 3px;
+      animation: fall 1100ms ease-in forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(620deg);
+        opacity: 0.2;
+      }
+    }
+
+    @media (min-width: 420px) {
+      .app {
+        padding-inline: 20px;
+      }
+
+      .week-strip,
+      .tabs {
+        margin-inline: -20px;
+        padding-inline: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero" aria-label="Resumo do treino">
+      <div class="topline">
+        <p class="eyebrow">Workout Tracker</p>
+        <div class="streak" id="streakBadge">0 dias</div>
+      </div>
+
+      <div class="title-row">
+        <div>
+          <h1 id="mainTitle">Treino</h1>
+          <div class="date" id="todayLabel"></div>
+        </div>
+      </div>
+
+      <div class="progress-wrap" aria-label="Progresso do treino">
+        <div class="progress-label">
+          <span id="progressText">0 de 0 exercícios</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <span>Treino</span>
+          <strong id="summaryWorkout">Descanso</strong>
+        </div>
+        <div class="summary-card">
+          <span>Progresso</span>
+          <strong id="summaryProgress">0%</strong>
+        </div>
+        <div class="summary-card">
+          <span>Séries</span>
+          <strong id="summarySets">0</strong>
+        </div>
+      </div>
+
+      <div class="tip" id="tipBox"></div>
+    </section>
+
+    <section aria-label="Divisão semanal">
+      <h2 class="section-title">Semana</h2>
+      <div class="week-strip" id="weekStrip"></div>
+    </section>
+
+    <nav class="tabs" id="tabs" aria-label="Selecionar treino"></nav>
+
+    <section aria-label="Exercícios">
+      <h2 class="section-title" id="listTitle">Exercícios</h2>
+      <div class="workout-list" id="workoutList"></div>
+    </section>
+  </main>
+
+  <footer class="timer" aria-label="Timer de descanso">
+    <div class="timer-inner">
+      <div class="timer-bar">
+        <div>
+          <p class="timer-label">Descanso</p>
+          <div class="timer-display" id="timerDisplay">01:00</div>
+        </div>
+        <button class="timer-action" id="timerToggle" type="button">Iniciar</button>
+      </div>
+      <div class="quick-buttons" id="quickButtons">
+        <button class="quick" type="button" data-seconds="45">45s</button>
+        <button class="quick active" type="button" data-seconds="60">60s</button>
+        <button class="quick" type="button" data-seconds="75">75s</button>
+        <button class="quick" type="button" data-seconds="90">90s</button>
+      </div>
+    </div>
+  </footer>
+
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <script>
+    const STORAGE_KEY = "workout-tracker-v1";
+    const STREAK_KEY = "workout-tracker-streak-v1";
+    const dayMap = {
+      1: "push-a",
+      2: "pull-a",
+      3: "legs",
+      4: "push-b",
+      5: "pull-b"
+    };
+    const workouts = [
+      {
+        id: "push-a",
+        label: "Push A",
+        week: "Seg",
+        tip: "Peito primeiro, tríceps depois e abdômen no fechamento. Use o timer para manter a sessão redonda.",
+        exercises: [
+          { name: "Supino máquina plano", group: "Peito", focus: "Peitoral médio, deltoide anterior e tríceps", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Escápulas retraídas no apoio; empurre até estender sem travar cotovelos; desça controlado até sentir alongamento no peito." },
+          { name: "Supino máquina inclinado", group: "Peito", focus: "Peitoral superior e tríceps", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Banco ~30°; empurre na linha do queixo; desça até antebraços ficarem verticais." },
+          { name: "Tríceps máquina (extensora)", group: "Tríceps", focus: "Cabeça lateral e medial do tríceps", sets: 3, reps: "10-12 reps", rest: "75s", technique: "Cotovelos alinhados com o eixo; estenda até o fim; retorne devagar sem deixar o peso cair." },
+          { name: "Tríceps pushdown (polia)", group: "Tríceps", focus: "Tríceps com ênfase no final da extensão", sets: 3, reps: "10-15 reps", rest: "60s", technique: "Barra reta ou V; cotovelos colados ao corpo; estenda até embaixo; volte só até 90°." },
+          { name: "Crunch máquina", group: "Abdômen", focus: "Reto abdominal", sets: 3, reps: "12-15 reps", rest: "45s", technique: "Segure as alças; feche costelas em direção ao quadril; retorne sem soltar a tensão." }
+        ]
+      },
+      {
+        id: "pull-a",
+        label: "Pull A",
+        week: "Ter",
+        tip: "Pense em puxar com cotovelos, não só com as mãos. O abdômen fecha o treino com estabilidade.",
+        exercises: [
+          { name: "Puxada frente supinada", group: "Costas", focus: "Latíssimo, redondo maior e bíceps", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Pegada supinada; peito alto; puxe cotovelos para o bolso; devolva esticando sem soltar escápulas." },
+          { name: "Rosca Scott máquina", group: "Bíceps", focus: "Bíceps braquial com menos roubo do ombro", sets: 3, reps: "8-12 reps", rest: "75s", technique: "Braços apoiados no pad; suba sem mover ombros; desça até quase estender sem hiperextender." },
+          { name: "Rosca máquina pegada neutra", group: "Bíceps", focus: "Braquial e braquiorradial", sets: 3, reps: "10-12 reps", rest: "60s", technique: "Polegar pra cima; cotovelos fixos; suba controlado; desça em ~2s sem balançar." },
+          { name: "Face pull (polia, corda)", group: "Ombros", focus: "Deltoide posterior, trapézio médio e manguito", sets: 3, reps: "12-15 reps", rest: "60s", technique: "Polia na altura do rosto; puxe abrindo a corda para as têmporas; aperte 1s atrás." },
+          { name: "Prancha lateral", group: "Abdômen", focus: "Oblíquos e estabilidade lateral do core", sets: 3, reps: "30-45s", rest: "45s", technique: "Antebraço no chão, corpo em linha; quadril alto e alinhado; segure sem deixar cair." }
+        ]
+      },
+      {
+        id: "legs",
+        label: "Legs",
+        week: "Qua",
+        tip: "Pernas pedem controle e amplitude boa. Abdômen entra no final para proteger a postura e fechar bem.",
+        exercises: [
+          { name: "Leg press · Quadríceps/Glúteos", group: "Pernas", focus: "Quadríceps como motor principal com apoio de glúteos", sets: 3, reps: "10-15 reps", rest: "90s", technique: "Pés na largura dos ombros; desça até ~90° de joelho; suba sem travar joelhos no topo." },
+          { name: "Stiff no Smith · Posteriores/Glúteos", group: "Pernas", focus: "Posteriores de coxa e glúteos", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Coluna neutra; empurre quadril para trás deslizando a barra; suba apertando glúteos." },
+          { name: "Hack squat · Quadríceps", group: "Pernas", focus: "Quadríceps com alta estabilidade", sets: 3, reps: "10-12 reps", rest: "90s", technique: "Costas no encosto; pés à frente; desça até 90°; suba sem tirar lombar do apoio." },
+          { name: "Elevação de joelhos", group: "Abdômen", focus: "Infra abdominal e flexão de quadril com controle", sets: 3, reps: "12-15 reps", rest: "45s", technique: "Braços apoiados; leve joelhos ao peito enrolando quadril; desça controlado sem balançar." },
+          { name: "Pallof press (polia)", group: "Abdômen", focus: "Antirrotação e estabilidade profunda do core", sets: 3, reps: "10-12 por lado", rest: "45s", technique: "De lado para a polia; pressione mãos à frente sem girar o tronco; segure 1-2s." }
+        ]
+      },
+      {
+        id: "push-b",
+        label: "Push B",
+        week: "Qui",
+        tip: "Hoje o empurrar fica mais vertical e focado em tríceps. Faça as repetições sem pressa.",
+        exercises: [
+          { name: "Supino fechado Smith", group: "Tríceps", focus: "Tríceps e peitoral interno", sets: 3, reps: "8-10 reps", rest: "90s", technique: "Mãos mais fechadas que ombros; desça ao peito baixo; suba focando extensão dos cotovelos." },
+          { name: "Desenvolvimento máquina", group: "Ombros", focus: "Deltoide anterior e medial", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Lombar apoiada; empurre acima da cabeça; desça até antebraço vertical sem forçar pescoço." },
+          { name: "Peck deck", group: "Peito", focus: "Peitoral com ênfase na contração final", sets: 3, reps: "10-15 reps", rest: "60s", technique: "Braços semi-estendidos nas almofadas; junte na frente apertando 1s; retorne controlado." },
+          { name: "Extensora tríceps (overhead máq.)", group: "Tríceps", focus: "Cabeça longa do tríceps", sets: 3, reps: "10-12 reps", rest: "75s", technique: "Costas apoiadas; cotovelos fixos pra cima; estenda até o topo; desça devagar." },
+          { name: "Crunch máquina", group: "Abdômen", focus: "Reto abdominal", sets: 3, reps: "12-15 reps", rest: "45s", technique: "Feche costelas ao quadril; não puxe com braços; retorne sem perder tensão." }
+        ]
+      },
+      {
+        id: "pull-b",
+        label: "Pull B",
+        week: "Sex",
+        tip: "Costas completas, bíceps e trapézio. O core fica no fim para encerrar com controle.",
+        exercises: [
+          { name: "Puxada neutra máquina", group: "Costas", focus: "Latíssimo e estabilidade escapular", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Pegada neutra; peito alto; puxe até barra tocar peito; devolva controlado." },
+          { name: "Remada máquina (Hammer)", group: "Costas", focus: "Espessura de dorsal, romboides e trapézio médio", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Peito no pad; puxe cotovelos para trás retraindo escápulas; aperte 1s." },
+          { name: "Rosca direta máquina", group: "Bíceps", focus: "Bíceps braquial", sets: 3, reps: "8-12 reps", rest: "75s", technique: "Cotovelos no pad; suba até contração máxima; desça em ~2s controlado." },
+          { name: "Shrugs no Smith", group: "Trapézio", focus: "Trapézio superior", sets: 3, reps: "12-15 reps", rest: "60s", technique: "Braços estendidos; eleve ombros às orelhas; pause 1s; desça devagar sem girar." },
+          { name: "Crunch invertido (banco)", group: "Abdômen", focus: "Infra abdominal com retroversão pélvica", sets: 3, reps: "12-15 reps", rest: "45s", technique: "Segure banco atrás da cabeça; leve joelhos ao peito enrolando quadril; desça controlado." }
+        ]
+      }
+    ];
+
+    const restDay = {
+      id: "rest",
+      label: "Descanso",
+      tip: "Hoje é dia de recuperar. Caminhada leve, água e sono contam como parte do treino.",
+      exercises: []
+    };
+
+    const state = {
+      selectedId: dayMap[new Date().getDay()] || "rest",
+      storage: readJson(STORAGE_KEY, {}),
+      streak: readJson(STREAK_KEY, { count: 0, lastDone: "" }),
+      timerSeconds: 60,
+      timerLeft: 60,
+      timerRunning: false,
+      timerId: null
+    };
+
+    const els = {
+      mainTitle: document.getElementById("mainTitle"),
+      todayLabel: document.getElementById("todayLabel"),
+      streakBadge: document.getElementById("streakBadge"),
+      progressText: document.getElementById("progressText"),
+      progressPct: document.getElementById("progressPct"),
+      progressFill: document.getElementById("progressFill"),
+      summaryWorkout: document.getElementById("summaryWorkout"),
+      summaryProgress: document.getElementById("summaryProgress"),
+      summarySets: document.getElementById("summarySets"),
+      tipBox: document.getElementById("tipBox"),
+      weekStrip: document.getElementById("weekStrip"),
+      tabs: document.getElementById("tabs"),
+      listTitle: document.getElementById("listTitle"),
+      workoutList: document.getElementById("workoutList"),
+      timerDisplay: document.getElementById("timerDisplay"),
+      timerToggle: document.getElementById("timerToggle"),
+      quickButtons: document.getElementById("quickButtons"),
+      confetti: document.getElementById("confetti")
+    };
+
+    function readJson(key, fallback) {
+      try {
+        return JSON.parse(localStorage.getItem(key)) || fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function saveJson(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function todayKey() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    }
+
+    function selectedWorkout() {
+      return workouts.find(workout => workout.id === state.selectedId) || restDay;
+    }
+
+    function workoutStorageKey(workoutId) {
+      return `${todayKey()}-${workoutId}`;
+    }
+
+    function completedFor(workoutId) {
+      return state.storage[workoutStorageKey(workoutId)] || [];
+    }
+
+    function updateStreakIfNeeded(workoutId, completed, total) {
+      const today = todayKey();
+      if (!total || completed.length !== total || state.streak.lastDone === today) return;
+
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
+      const nextCount = state.streak.lastDone === yesterdayKey ? state.streak.count + 1 : 1;
+      state.streak = { count: nextCount, lastDone: today, workoutId };
+      saveJson(STREAK_KEY, state.streak);
+      launchConfetti();
+    }
+
+    function render() {
+      const workout = selectedWorkout();
+      const isRest = workout.id === "rest";
+      const completed = isRest ? [] : completedFor(workout.id);
+      const total = workout.exercises.length;
+      updateStreakIfNeeded(workout.id, completed, total);
+      const pct = total ? Math.round((completed.length / total) * 100) : 0;
+      const sets = isRest ? 0 : workout.exercises.reduce((sum, exercise) => sum + exercise.sets, 0);
+
+      els.todayLabel.textContent = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long" }).format(new Date());
+      els.mainTitle.textContent = workout.label;
+      els.streakBadge.textContent = `${state.streak.count || 0} ${state.streak.count === 1 ? "dia" : "dias"}`;
+      els.progressText.textContent = `${completed.length} de ${total} exercícios`;
+      els.progressPct.textContent = `${pct}%`;
+      els.progressFill.style.width = `${pct}%`;
+      els.summaryWorkout.textContent = workout.label;
+      els.summaryProgress.textContent = `${pct}%`;
+      els.summarySets.textContent = `${sets}`;
+      els.tipBox.textContent = isRest ? restDay.tip : workout.tip;
+      els.listTitle.textContent = isRest ? "Hoje é descanso" : "Exercícios";
+
+      renderWeek();
+      renderTabs();
+      renderWorkoutList(workout, completed);
+    }
+
+    function renderWeek() {
+      const items = [
+        ["Seg", "Push A", "push-a"],
+        ["Ter", "Pull A", "pull-a"],
+        ["Qua", "Legs", "legs"],
+        ["Qui", "Push B", "push-b"],
+        ["Sex", "Pull B", "pull-b"]
+      ];
+
+      els.weekStrip.innerHTML = items.map(([day, label, id]) => (
+        `<span class="week-pill ${id === state.selectedId ? "active" : ""}">${day} ${label}</span>`
+      )).join("");
+    }
+
+    function renderTabs() {
+      const tabs = [...workouts, restDay];
+      els.tabs.innerHTML = tabs.map(workout => (
+        `<button class="tab ${workout.id === state.selectedId ? "active" : ""}" type="button" data-id="${workout.id}">${workout.label}</button>`
+      )).join("");
+
+      els.tabs.querySelectorAll(".tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+          state.selectedId = tab.dataset.id;
+          render();
+        });
+      });
+    }
+
+    function renderWorkoutList(workout, completed) {
+      if (workout.id === "rest") {
+        els.workoutList.innerHTML = `<div class="rest-card"><strong>Recuperar também é treino.</strong><span>Sem checklist hoje. Progresso e séries previstas ficam zerados para preservar o dia off.</span></div>`;
+        return;
+      }
+
+      els.workoutList.innerHTML = workout.exercises.map((exercise, index) => {
+        const done = completed.includes(index);
+        return `
+          <article class="exercise-card ${done ? "done" : ""}">
+            <button class="exercise-main" type="button" data-index="${index}" aria-pressed="${done}">
+              <div class="exercise-head">
+                <div>
+                  <span class="exercise-label">${exercise.group}</span>
+                  <h3 class="exercise-name">${exercise.name}</h3>
+                </div>
+                <span class="check">✓</span>
+              </div>
+              <p class="exercise-focus">${exercise.focus}</p>
+              <div class="exercise-meta" aria-label="Detalhes do exercício">
+                <span class="meta-chip">${exercise.sets} séries</span>
+                <span class="meta-chip">${exercise.reps}</span>
+                <span class="meta-chip">${exercise.rest}</span>
+              </div>
+            </button>
+            <details>
+              <summary>Ver execução e técnica</summary>
+              <p class="technique">${exercise.technique}</p>
+            </details>
+          </article>
+        `;
+      }).join("");
+
+      els.workoutList.querySelectorAll(".exercise-main").forEach(button => {
+        button.addEventListener("click", () => toggleExercise(workout.id, Number(button.dataset.index)));
+      });
+    }
+
+    function toggleExercise(workoutId, index) {
+      const key = workoutStorageKey(workoutId);
+      const current = new Set(state.storage[key] || []);
+      current.has(index) ? current.delete(index) : current.add(index);
+      state.storage[key] = [...current].sort((a, b) => a - b);
+      saveJson(STORAGE_KEY, state.storage);
+      render();
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+
+    function setTimer(seconds) {
+      state.timerSeconds = seconds;
+      state.timerLeft = seconds;
+      state.timerRunning = false;
+      clearInterval(state.timerId);
+      els.timerToggle.textContent = "Iniciar";
+      els.timerDisplay.textContent = formatTime(state.timerLeft);
+      document.querySelectorAll(".quick").forEach(button => {
+        button.classList.toggle("active", Number(button.dataset.seconds) === seconds);
+      });
+    }
+
+    function toggleTimer() {
+      if (state.timerRunning) {
+        state.timerRunning = false;
+        clearInterval(state.timerId);
+        els.timerToggle.textContent = "Iniciar";
+        return;
+      }
+
+      state.timerRunning = true;
+      els.timerToggle.textContent = "Pausar";
+      state.timerId = setInterval(() => {
+        state.timerLeft -= 1;
+        els.timerDisplay.textContent = formatTime(Math.max(state.timerLeft, 0));
+        if (state.timerLeft <= 0) {
+          clearInterval(state.timerId);
+          state.timerRunning = false;
+          els.timerToggle.textContent = "Iniciar";
+          state.timerLeft = state.timerSeconds;
+          if ("vibrate" in navigator) navigator.vibrate([160, 80, 160]);
+          setTimeout(() => els.timerDisplay.textContent = formatTime(state.timerLeft), 900);
+        }
+      }, 1000);
+    }
+
+    function launchConfetti() {
+      const colors = ["#9f6248", "#6d8a6f", "#d9bc98", "#724332", "#f5dfa8"];
+      els.confetti.innerHTML = "";
+      for (let i = 0; i < 44; i += 1) {
+        const piece = document.createElement("i");
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[i % colors.length];
+        piece.style.animationDelay = `${Math.random() * 280}ms`;
+        piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+        els.confetti.appendChild(piece);
+      }
+      setTimeout(() => els.confetti.innerHTML = "", 1500);
+    }
+
+    els.timerToggle.addEventListener("click", toggleTimer);
+    els.quickButtons.querySelectorAll(".quick").forEach(button => {
+      button.addEventListener("click", () => setTimer(Number(button.dataset.seconds)));
+    });
+
+    render();
+    setTimer(60);
+  </script>
+</body>
+</html>
