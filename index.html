@@ -1,1080 +1,865 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#9f6248">
-  <meta name="description" content="Workout Tracker mobile-first para acompanhar treinos, progresso, streak e descanso no iPhone.">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Workout">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="manifest.webmanifest">
-  <title>Workout Tracker</title>
-  <style>
-    :root {
-      --cream: #fbf4e8;
-      --sand: #edd9be;
-      --sand-2: #d9bc98;
-      --terracotta: #9f6248;
-      --terracotta-dark: #724332;
-      --sage: #6d8a6f;
-      --sage-soft: #dfe8d8;
-      --gold: #d9a441;
-      --clay: #c46f4f;
-      --rose: #c67b76;
-      --teal: #3f8b83;
-      --olive: #8a944e;
-      --plum: #775b8d;
-      --sky: #5f8fb2;
-      --ink: #2f2923;
-      --muted: #786c5e;
-      --card: rgba(255, 250, 241, 0.92);
-      --line: rgba(114, 67, 50, 0.18);
-      --shadow: 0 18px 42px rgba(76, 48, 33, 0.13);
-      --shadow-strong: 0 22px 54px rgba(76, 48, 33, 0.18);
-      --footer: 130px;
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html {
-      min-height: 100%;
-      background: var(--cream);
-      color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
-      letter-spacing: 0;
-    }
-
-    body {
-      min-height: 100%;
-      margin: 0;
-      background:
-        radial-gradient(circle at 0% 0%, rgba(255, 250, 241, 0.94), transparent 26%),
-        radial-gradient(circle at 100% 10%, rgba(223, 232, 216, 0.9), transparent 28%),
-        radial-gradient(circle at 8% 48%, rgba(217, 164, 65, 0.18), transparent 24%),
-        radial-gradient(circle at 100% 72%, rgba(63, 139, 131, 0.16), transparent 26%),
-        linear-gradient(180deg, #fff7ea 0%, #f1dcc1 48%, #e5c8a9 100%);
-      color: var(--ink);
-    }
-
-    button {
-      border: 0;
-      font: inherit;
-      color: inherit;
-      cursor: pointer;
-    }
-
-    .app {
-      width: min(100%, 520px);
-      min-height: 100svh;
-      margin: 0 auto;
-      padding: calc(18px + env(safe-area-inset-top)) 16px calc(var(--footer) + env(safe-area-inset-bottom));
-    }
-
-    .hero {
-      display: grid;
-      gap: 16px;
-      padding-top: 4px;
-      position: relative;
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: -10px -10px auto;
-      height: 185px;
-      border-radius: 18px;
-      background:
-        linear-gradient(135deg, rgba(255, 250, 241, 0.74), rgba(223, 232, 216, 0.32)),
-        radial-gradient(circle at 86% 22%, rgba(196, 111, 79, 0.18), transparent 30%);
-      z-index: -1;
-    }
-
-    .topline,
-    .title-row,
-    .meta-row,
-    .summary-grid,
-    .exercise-head,
-    .exercise-meta,
-    .timer-bar,
-    .quick-buttons,
-    .week-strip,
-    .tabs {
-      display: flex;
-    }
-
-    .topline,
-    .title-row,
-    .meta-row,
-    .exercise-head,
-    .timer-bar {
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .eyebrow {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(2rem, 10vw, 3.35rem);
-      line-height: 0.93;
-      letter-spacing: 0;
-      color: var(--terracotta-dark);
-    }
-
-    .date {
-      color: var(--muted);
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
-    .streak {
-      flex: 0 0 auto;
-      border: 1px solid rgba(109, 138, 111, 0.35);
-      border-radius: 999px;
-      padding: 9px 12px;
-      background: linear-gradient(135deg, rgba(223, 232, 216, 0.94), rgba(255, 244, 208, 0.82));
-      color: #415f44;
-      font-size: 0.9rem;
-      font-weight: 800;
-      box-shadow: 0 10px 24px rgba(65, 95, 68, 0.16);
-    }
-
-    .progress-wrap {
-      display: grid;
-      gap: 8px;
-    }
-
-    .progress-label {
-      display: flex;
-      justify-content: space-between;
-      color: var(--muted);
-      font-size: 0.88rem;
-      font-weight: 700;
-    }
-
-    .progress-track {
-      overflow: hidden;
-      height: 14px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, rgba(114, 67, 50, 0.12), rgba(109, 138, 111, 0.14));
-      box-shadow: inset 0 1px 2px rgba(76, 48, 33, 0.08);
-    }
-
-    .progress-fill {
-      width: 0%;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--teal), var(--sage), var(--gold), var(--clay));
-      transition: width 280ms ease;
-    }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 9px;
-    }
-
-    .summary-card,
-    .tip,
-    .exercise-card,
-    .rest-card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--card);
-      box-shadow: var(--shadow);
-    }
-
-    .summary-card {
-      min-height: 98px;
-      padding: 12px 10px;
-      position: relative;
-      overflow: hidden;
-      background:
-        linear-gradient(145deg, rgba(255, 250, 241, 0.96), rgba(255, 243, 220, 0.72)),
-        radial-gradient(circle at 100% 100%, rgba(196, 111, 79, 0.16), transparent 34%);
-    }
-
-    .summary-card::after {
-      content: attr(data-icon);
-      position: absolute;
-      right: 9px;
-      bottom: 7px;
-      font-size: 1.6rem;
-      opacity: 0.18;
-    }
-
-    .summary-card span,
-    .exercise-label,
-    .meta-label {
-      display: block;
-      color: var(--muted);
-      font-size: 0.74rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .summary-card strong {
-      display: block;
-      margin-top: 9px;
-      color: var(--terracotta-dark);
-      font-size: 1.05rem;
-      line-height: 1.05;
-    }
-
-    .tip {
-      padding: 15px 15px 15px 46px;
-      color: #4c463c;
-      font-size: 0.95rem;
-      line-height: 1.45;
-      position: relative;
-      background: linear-gradient(135deg, rgba(255, 250, 241, 0.95), rgba(223, 232, 216, 0.78));
-    }
-
-    .tip::before {
-      content: "✦";
-      position: absolute;
-      left: 16px;
-      top: 17px;
-      display: grid;
-      width: 22px;
-      height: 22px;
-      place-items: center;
-      border-radius: 50%;
-      background: rgba(159, 98, 72, 0.13);
-      color: var(--terracotta-dark);
-      font-size: 0.9rem;
-      font-weight: 900;
-    }
-
-    .week-strip,
-    .tabs {
-      gap: 8px;
-      overflow-x: auto;
-      margin-inline: -16px;
-      padding: 0 16px 4px;
-      scrollbar-width: none;
-    }
-
-    .week-strip::-webkit-scrollbar,
-    .tabs::-webkit-scrollbar {
-      display: none;
-    }
-
-    .week-pill,
-    .tab {
-      flex: 0 0 auto;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: linear-gradient(135deg, rgba(255, 250, 241, 0.84), rgba(255, 244, 225, 0.66));
-      color: var(--muted);
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .week-pill {
-      padding: 9px 11px;
-      font-size: 0.82rem;
-    }
-
-    .week-pill.active {
-      background: linear-gradient(135deg, var(--sage-soft), rgba(255, 244, 208, 0.9));
-      color: #425f43;
-      border-color: rgba(109, 138, 111, 0.36);
-      box-shadow: 0 8px 18px rgba(65, 95, 68, 0.14);
-    }
-
-    .tab {
-      min-height: 44px;
-      padding: 0 15px;
-      transition: transform 160ms ease, background 160ms ease, color 160ms ease;
-    }
-
-    .tab.active {
-      background: linear-gradient(135deg, var(--terracotta), var(--clay), #b98649);
-      color: #fffaf1;
-      box-shadow: 0 10px 22px rgba(159, 98, 72, 0.28);
-    }
-
-    .section-title {
-      margin: 18px 0 10px;
-      color: var(--terracotta-dark);
-      font-size: 1.18rem;
-      line-height: 1.1;
-    }
-
-    .workout-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .exercise-card {
-      overflow: hidden;
-      padding: 0;
-      position: relative;
-      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
-      box-shadow: var(--shadow-strong);
-    }
-
-    .exercise-card::before {
-      content: "";
-      position: absolute;
-      inset: 0 auto 0 0;
-      width: 5px;
-      background: var(--accent, var(--terracotta));
-      opacity: 0.92;
-    }
-
-    .exercise-main {
-      width: 100%;
-      padding: 13px;
-      background: transparent;
-      text-align: left;
-    }
-
-    .exercise-visual {
-      position: relative;
-      display: grid;
-      min-height: 168px;
-      margin-bottom: 13px;
-      place-items: center;
-      overflow: hidden;
-      border: 1px solid rgba(114, 67, 50, 0.12);
-      border-radius: 8px;
-      background:
-        linear-gradient(135deg, rgba(255, 250, 241, 0.82), rgba(223, 232, 216, 0.58)),
-        radial-gradient(circle at 14% 16%, rgba(var(--accent-rgb, 159, 98, 72), 0.24), transparent 28%),
-        radial-gradient(circle at 86% 14%, rgba(217, 164, 65, 0.22), transparent 26%);
-      box-shadow: inset 0 0 0 1px rgba(255, 250, 241, 0.38);
-    }
-
-    .exercise-visual img {
-      width: 100%;
-      height: 168px;
-      object-fit: contain;
-      mix-blend-mode: multiply;
-      opacity: 0;
-      transform: scale(0.98);
-      transition: opacity 220ms ease, transform 220ms ease;
-    }
-
-    .exercise-visual img.loaded {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .exercise-emoji {
-      position: absolute;
-      display: grid;
-      width: 86px;
-      height: 86px;
-      place-items: center;
-      border-radius: 50%;
-      background: rgba(255, 250, 241, 0.78);
-      box-shadow: inset 0 0 0 1px rgba(114, 67, 50, 0.12), 0 14px 30px rgba(76, 48, 33, 0.12);
-      font-size: 2.55rem;
-      line-height: 1;
-    }
-
-    .exercise-visual img.loaded + .exercise-emoji {
-      opacity: 0;
-    }
-
-    .source-pill {
-      position: absolute;
-      right: 9px;
-      bottom: 9px;
-      border-radius: 999px;
-      padding: 5px 8px;
-      background: linear-gradient(135deg, rgba(47, 41, 35, 0.74), rgba(var(--accent-rgb, 159, 98, 72), 0.74));
-      color: rgba(255, 250, 241, 0.92);
-      font-size: 0.68rem;
-      font-weight: 850;
-      letter-spacing: 0.02em;
-    }
-
-    .exercise-card.done {
-      border-color: rgba(109, 138, 111, 0.5);
-      background: rgba(241, 248, 235, 0.92);
-    }
-
-    .exercise-card.done .exercise-visual {
-      border-color: rgba(109, 138, 111, 0.26);
-      background:
-        linear-gradient(135deg, rgba(241, 248, 235, 0.86), rgba(255, 250, 241, 0.75)),
-        radial-gradient(circle at 18% 16%, rgba(109, 138, 111, 0.24), transparent 28%),
-        radial-gradient(circle at 82% 16%, rgba(var(--accent-rgb, 109, 138, 111), 0.22), transparent 28%);
-    }
-
-    .check {
-      display: grid;
-      flex: 0 0 auto;
-      width: 34px;
-      height: 34px;
-      place-items: center;
-      border: 2px solid rgba(159, 98, 72, 0.28);
-      border-radius: 50%;
-      color: transparent;
-      font-size: 1.2rem;
-      font-weight: 900;
-      transition: all 180ms ease;
-    }
-
-    .exercise-card.done .check {
-      border-color: var(--sage);
-      background: linear-gradient(135deg, var(--sage), var(--teal));
-      color: white;
-    }
-
-    .exercise-card[data-group="Peito"] { --accent: var(--clay); --accent-rgb: 196, 111, 79; }
-    .exercise-card[data-group="Costas"] { --accent: var(--teal); --accent-rgb: 63, 139, 131; }
-    .exercise-card[data-group="Bíceps"] { --accent: var(--sky); --accent-rgb: 95, 143, 178; }
-    .exercise-card[data-group="Tríceps"] { --accent: var(--rose); --accent-rgb: 198, 123, 118; }
-    .exercise-card[data-group="Ombros"] { --accent: var(--plum); --accent-rgb: 119, 91, 141; }
-    .exercise-card[data-group="Pernas"] { --accent: var(--olive); --accent-rgb: 138, 148, 78; }
-    .exercise-card[data-group="Abdômen"] { --accent: var(--gold); --accent-rgb: 217, 164, 65; }
-    .exercise-card[data-group="Trapézio"] { --accent: var(--terracotta-dark); --accent-rgb: 114, 67, 50; }
-
-    .exercise-name {
-      margin: 0;
-      color: var(--ink);
-      font-size: 1.14rem;
-      line-height: 1.12;
-    }
-
-    .exercise-focus {
-      margin: 7px 0 0;
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.35;
-    }
-
-    .exercise-meta {
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 13px;
-    }
-
-    .meta-chip {
-      min-height: 33px;
-      border-radius: 999px;
-      padding: 7px 10px;
-      background: linear-gradient(135deg, rgba(237, 217, 190, 0.72), rgba(255, 250, 241, 0.76));
-      color: var(--terracotta-dark);
-      font-size: 0.84rem;
-      font-weight: 800;
-    }
-
-    details {
-      border-top: 1px solid var(--line);
-      background: rgba(255, 250, 241, 0.58);
-    }
-
-    summary {
-      min-height: 48px;
-      padding: 14px 15px;
-      color: var(--terracotta-dark);
-      font-weight: 850;
-      cursor: pointer;
-      list-style: none;
-    }
-
-    summary::-webkit-details-marker {
-      display: none;
-    }
-
-    summary::after {
-      content: "+";
-      float: right;
-      color: var(--sage);
-      font-size: 1.2rem;
-      line-height: 1;
-    }
-
-    details[open] summary::after {
-      content: "-";
-    }
-
-    .technique {
-      margin: 0;
-      padding: 0 15px 16px;
-      color: #554c41;
-      font-size: 0.95rem;
-      line-height: 1.48;
-    }
-
-    .rest-card {
-      padding: 22px 18px;
-      text-align: center;
-      color: var(--muted);
-    }
-
-    .rest-card strong {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--terracotta-dark);
-      font-size: 1.45rem;
-    }
-
-    .timer {
-      position: fixed;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      z-index: 20;
-      padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
-      background:
-        radial-gradient(circle at 16% 0%, rgba(217, 164, 65, 0.24), transparent 26%),
-        radial-gradient(circle at 86% 18%, rgba(63, 139, 131, 0.24), transparent 28%),
-        linear-gradient(135deg, rgba(55, 44, 35, 0.96), rgba(83, 59, 45, 0.95));
-      color: #fffaf1;
-      box-shadow: 0 -18px 40px rgba(46, 35, 27, 0.22);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-    }
-
-    .timer-inner {
-      width: min(100%, 520px);
-      margin: 0 auto;
-      display: grid;
-      gap: 10px;
-    }
-
-    .timer-label {
-      margin: 0;
-      color: rgba(255, 250, 241, 0.72);
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .timer-display {
-      font-variant-numeric: tabular-nums;
-      color: #fff3df;
-      font-size: 2rem;
-      font-weight: 900;
-      line-height: 1;
-    }
-
-    .timer-action,
-    .quick {
-      border-radius: 999px;
-      font-weight: 900;
-    }
-
-    .timer-action {
-      min-width: 104px;
-      min-height: 44px;
-      background: linear-gradient(135deg, #ffe0aa, var(--sand), #d9c88f);
-      color: var(--terracotta-dark);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-    }
-
-    .quick-buttons {
-      gap: 7px;
-    }
-
-    .quick {
-      flex: 1 1 0;
-      min-height: 36px;
-      background: rgba(255, 250, 241, 0.12);
-      color: rgba(255, 250, 241, 0.9);
-      border: 1px solid rgba(255, 250, 241, 0.16);
-      font-size: 0.86rem;
-    }
-
-    .quick.active {
-      background: linear-gradient(135deg, var(--sage-soft), #f3dfad);
-      color: #38583c;
-    }
-
-    .confetti {
-      pointer-events: none;
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
-      z-index: 30;
-    }
-
-    .confetti i {
-      position: absolute;
-      top: -18px;
-      width: 9px;
-      height: 14px;
-      border-radius: 3px;
-      animation: fall 1100ms ease-in forwards;
-    }
-
-    @keyframes fall {
-      to {
-        transform: translateY(110vh) rotate(620deg);
-        opacity: 0.2;
-      }
-    }
-
-    @media (min-width: 420px) {
-      .app {
-        padding-inline: 20px;
-      }
-
-      .week-strip,
-      .tabs {
-        margin-inline: -20px;
-        padding-inline: 20px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#f7f2e9">
+<meta name="description" content="Workout Tracker mobile-first para acompanhar treinos, progresso, streak e descanso no iPhone.">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Workout Tracker</title>
+<style>
+:root {
+  --bg: #f4efe6;
+  --card: #fffaf2;
+  --card-done: #e3efe4;
+  --text: #1f2933;
+  --text-muted: #6b7280;
+  --accent-push: #c96c3a;
+  --accent-pull: #52796f;
+  --accent-legs: #7c8f4e;
+  --accent-rest: #8a6f8f;
+  --peito: #b85c38;
+  --triceps: #d17a45;
+  --costas: #4f6d7a;
+  --biceps: #5b8e7d;
+  --pernas: #758e4f;
+  --ombros: #b68c4a;
+  --abdomen: #8c6f9c;
+  --trapezio: #a56a6a;
+  --radius: 16px;
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --shadow: 0 16px 40px rgba(96, 77, 55, 0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(201, 108, 58, 0.16), transparent 32%),
+    radial-gradient(circle at 85% 18%, rgba(82, 121, 111, 0.14), transparent 24%),
+    linear-gradient(180deg, #f7f2e9 0%, #efe6d9 100%);
+  color: var(--text);
+  min-height: 100dvh;
+  padding: calc(var(--safe-top) + 16px) 16px calc(var(--safe-bottom) + 100px) 16px;
+  overflow-x: hidden;
+}
+
+button {
+  font: inherit;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.header .date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 4px 12px;
+  background: rgba(201, 108, 58, 0.12);
+  border: 1px solid rgba(201, 108, 58, 0.24);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: var(--accent-push);
+}
+
+.progress-container {
+  background: rgba(31, 41, 51, 0.08);
+  border-radius: 12px;
+  height: 8px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 12px;
+  transition: width 0.4s ease, background 0.4s ease;
+  width: 0%;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.summary-card {
+  background: rgba(255, 250, 242, 0.92);
+  border: 1px solid rgba(114, 92, 70, 0.1);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.summary-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.summary-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 4px;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 250, 242, 0.84);
+  border: 1px solid rgba(114, 92, 70, 0.12);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 52px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.tab.active {
+  background: var(--accent-push);
+  border-color: var(--accent-push);
+  color: #fff;
+}
+
+.tab[data-type="pull"].active { background: var(--accent-pull); border-color: var(--accent-pull); }
+.tab[data-type="legs"].active { background: var(--accent-legs); border-color: var(--accent-legs); }
+.tab[data-type="rest"].active { background: var(--accent-rest); border-color: var(--accent-rest); }
+
+.exercise-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(114, 92, 70, 0.1);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  text-align: left;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.exercise-card.done {
+  background: var(--card-done);
+  opacity: 0.7;
+}
+
+.exercise-card.done .exercise-name {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.exercise-card.done .exercise-reps {
+  color: rgba(31, 41, 51, 0.6);
+}
+
+.exercise-card.done .check-circle {
+  background: var(--accent-push);
+  border-color: var(--accent-push);
+}
+
+.exercise-card.done .check-circle svg { opacity: 1; }
+
+.exercise-card:active {
+  transform: scale(0.99);
+}
+
+.card-image {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(201, 108, 58, 0.1), rgba(82, 121, 111, 0.08));
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(114, 92, 70, 0.1);
+}
+
+.card-image .fallback-icon {
+  font-size: 1.4rem;
+  opacity: 0.95;
+}
+
+.exercise-gif {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: #fffaf2;
+}
+
+.card-image.has-gif .fallback-media {
+  display: none;
+}
+
+.card-image .fallback-label {
+  display: block;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+  opacity: 0.7;
+}
+
+.card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.exercise-name {
+  font-size: 0.98rem;
+  font-weight: 600;
+  margin-bottom: 3px;
+  transition: all 0.3s ease;
+}
+
+.exercise-focus {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.exercise-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.meta-pill {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(114, 92, 70, 0.08);
+  color: rgba(31, 41, 51, 0.82);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.exercise-reps {
+  font-size: 0.76rem;
+  color: rgba(31, 41, 51, 0.72);
+  margin-bottom: 8px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.exercise-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.exercise-desc summary {
+  list-style: none;
+  cursor: pointer;
+  color: inherit;
+  font-weight: 600;
+}
+
+.exercise-desc summary::-webkit-details-marker {
+  display: none;
+}
+
+.exercise-desc details {
+  background: rgba(114, 92, 70, 0.06);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.exercise-desc details[open] {
+  background: rgba(114, 92, 70, 0.1);
+}
+
+.desc-preview {
+  color: rgba(31, 41, 51, 0.88);
+}
+
+.desc-full {
+  display: block;
+  margin-top: 8px;
+}
+
+.split-overview {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 18px;
+}
+
+.split-day {
+  background: rgba(255, 250, 242, 0.74);
+  border: 1px solid rgba(114, 92, 70, 0.1);
+  border-radius: 14px;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.split-day strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.check-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(114, 92, 70, 0.22);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: center;
+}
+
+.check-circle svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  fill: #fff;
+}
+
+.timer-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(247, 242, 233, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 16px 16px calc(var(--safe-bottom) + 16px) 16px;
+  border-top: 1px solid rgba(114, 92, 70, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 -10px 30px rgba(96, 77, 55, 0.08);
+}
+
+.timer-btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.timer-btn.primary { background: var(--accent-push); }
+.timer-btn.secondary { background: rgba(114, 92, 70, 0.1); color: var(--text); }
+
+.timer-display {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 60px;
+  text-align: center;
+  color: var(--text);
+}
+
+.rest-day {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.rest-day .emoji { font-size: 4rem; margin-bottom: 16px; }
+.rest-day h2 { font-size: 1.3rem; margin-bottom: 8px; }
+.rest-day p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+
+.confetti { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+
+@keyframes fadeCheck {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.exercise-card.just-checked { animation: fadeCheck 0.3s ease; }
+
+.tip-box {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  background: rgba(82, 121, 111, 0.1);
+  border: 1px solid rgba(82, 121, 111, 0.16);
+  border-radius: 14px;
+  font-size: 0.8rem;
+  color: rgba(31, 41, 51, 0.9);
+}
+
+@media (max-width: 390px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .split-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .timer-container {
+    gap: 8px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .timer-btn {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+  }
+
+  .timer-display {
+    min-width: 52px;
+    font-size: 1.2rem;
+  }
+}
+</style>
 </head>
 <body>
-  <main class="app">
-    <section class="hero" aria-label="Resumo do treino">
-      <div class="topline">
-        <p class="eyebrow">Workout Tracker</p>
-        <div class="streak" id="streakBadge">0 dias</div>
-      </div>
 
-      <div class="title-row">
-        <div>
-          <h1 id="mainTitle">Treino</h1>
-          <div class="date" id="todayLabel"></div>
+<div class="header">
+  <h1 id="title">Workout Tracker</h1>
+  <div class="date" id="dateDisplay"></div>
+  <div class="streak-badge" id="streakBadge">🔥 <span id="streakCount">0</span> dias seguidos</div>
+</div>
+
+<div class="progress-container">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-card">
+    <div class="summary-label">Treino do dia</div>
+    <div class="summary-value" id="workoutLabel">Descanso</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label">Progresso</div>
+    <div class="summary-value" id="progressLabel">0 de 0</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label">Séries previstas</div>
+    <div class="summary-value" id="setsLabel">0</div>
+  </div>
+</div>
+
+<div class="tip-box" id="tipBox">Toque em um exercício para marcar como concluído. O detalhe técnico fica recolhido para facilitar a leitura no iPhone.</div>
+
+<div class="split-overview">
+  <div class="split-day"><strong>Seg</strong>Push A</div>
+  <div class="split-day"><strong>Ter</strong>Pull A</div>
+  <div class="split-day"><strong>Qua</strong>Legs</div>
+  <div class="split-day"><strong>Qui</strong>Push B</div>
+  <div class="split-day"><strong>Sex</strong>Pull B</div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div id="exerciseList"></div>
+
+<div class="timer-container">
+  <button class="timer-btn secondary" onclick="setTimer(45)">45s</button>
+  <button class="timer-btn secondary" onclick="setTimer(60)">60s</button>
+  <button class="timer-btn secondary" onclick="setTimer(75)">75s</button>
+  <button class="timer-btn secondary" onclick="setTimer(90)">90s</button>
+  <div class="timer-display" id="timerDisplay">--</div>
+  <button class="timer-btn primary" id="timerStartBtn" onclick="toggleTimer()">▶</button>
+</div>
+
+<canvas class="confetti" id="confettiCanvas"></canvas>
+
+<script>
+const WORKOUTS = [
+  {
+    name: "Push A", type: "push", day: 1,
+    exercises: [
+      { name: "Supino máquina plano", group: "Peito", focus: "Peitoral médio, deltoide anterior e tríceps", sets: 3, reps: "8-12 reps", rest: "90s", desc: "Escápulas retraídas no apoio; empurre até estender sem travar cotovelos; desça controlado até sentir alongamento no peito.", icon: "🫁", gif: "https://static.exercisedb.dev/media/DOoWcnA.gif" },
+      { name: "Supino máquina inclinado", group: "Peito", focus: "Peitoral superior e tríceps", sets: 3, reps: "8-12 reps", rest: "90s", desc: "Banco ~30°; empurre na linha do queixo; desça até antebraços ficarem verticais.", icon: "🫁", gif: "https://static.exercisedb.dev/media/jHAnWmT.gif" },
+      { name: "Tríceps máquina (extensora)", group: "Tríceps", focus: "Cabeça lateral e medial do tríceps", sets: 3, reps: "10-12 reps", rest: "75s", desc: "Cotovelos alinhados com o eixo; estenda até o fim; retorne devagar sem deixar o peso cair.", icon: "💪", gif: "https://static.exercisedb.dev/media/Ser9eQp.gif" },
+      { name: "Tríceps pushdown (polia)", group: "Tríceps", focus: "Tríceps com ênfase no final da extensão", sets: 3, reps: "10-15 reps", rest: "60s", desc: "Barra reta ou V; cotovelos colados ao corpo; estenda até embaixo; volte só até 90°.", icon: "💪", gif: "https://static.exercisedb.dev/media/3ZflifB.gif" },
+      { name: "Crunch máquina", group: "Abdômen", focus: "Reto abdominal", sets: 3, reps: "12-15 reps", rest: "45s", desc: "Segure as alças; feche costelas em direção ao quadril; retorne sem soltar a tensão.", icon: "🎯", gif: "https://static.exercisedb.dev/media/Wgaz7pm.gif" }
+    ]
+  },
+  {
+    name: "Pull A", type: "pull", day: 2,
+    exercises: [
+      { name: "Puxada frente supinada", group: "Costas", focus: "Latíssimo, redondo maior e bíceps", sets: 3, reps: "8-12 reps", rest: "90s", desc: "Pegada supinada; peito alto; puxe cotovelos para o bolso; devolva esticando sem soltar escápulas.", icon: "🦅", gif: "https://static.exercisedb.dev/media/7F1DVzn.gif" },
+      { name: "Rosca Scott máquina", group: "Bíceps", focus: "Bíceps braquial com menos roubo do ombro", sets: 3, reps: "8-12 reps", rest: "75s", desc: "Braços apoiados no pad; suba sem mover ombros; desça até quase estender sem hiperextender.", icon: "💪", gif: "https://static.exercisedb.dev/media/b6hQYMb.gif" },
+      { name: "Rosca máquina pegada neutra", group: "Bíceps", focus: "Braquial e braquiorradial", sets: 3, reps: "10-12 reps", rest: "60s", desc: "Polegar pra cima; cotovelos fixos; suba controlado; desça em ~2s sem balançar.", icon: "💪", gif: "https://static.exercisedb.dev/media/OAguZoG.gif" },
+      { name: "Face pull (polia, corda)", group: "Ombros", focus: "Deltoide posterior, trapézio médio e manguito", sets: 3, reps: "12-15 reps", rest: "60s", desc: "Polia na altura do rosto; puxe abrindo a corda para as têmporas; aperte 1s atrás.", icon: "🎯", gif: "https://static.exercisedb.dev/media/8DiFDVA.gif" },
+      { name: "Prancha lateral", group: "Abdômen", focus: "Oblíquos e estabilidade lateral do core", sets: 3, reps: "30-45s", rest: "45s", desc: "Antebraço no chão, corpo em linha; quadril alto e alinhado; segure sem deixar cair.", icon: "🎯", gif: "https://static.exercisedb.dev/media/5VXmnV5.gif" }
+    ]
+  },
+  {
+    name: "Legs", type: "legs", day: 3,
+    exercises: [
+      { name: "Leg press · Quadríceps/Glúteos", group: "Pernas", focus: "Quadríceps como motor principal com apoio de glúteos", sets: 3, reps: "10-15 reps", rest: "90s", desc: "Pés na largura dos ombros; desça até ~90° de joelho; suba sem travar joelhos no topo.", icon: "🦵", gif: "https://static.exercisedb.dev/media/10Z2DXU.gif" },
+      { name: "Stiff no Smith · Posteriores/Glúteos", group: "Pernas", focus: "Posteriores de coxa e glúteos", sets: 3, reps: "8-12 reps", rest: "90s", desc: "Coluna neutra; empurre quadril para trás deslizando a barra; suba apertando glúteos.", icon: "🦵", gif: "https://static.exercisedb.dev/media/1bQkKZK.gif" },
+      { name: "Hack squat · Quadríceps", group: "Pernas", focus: "Quadríceps com alta estabilidade", sets: 3, reps: "10-12 reps", rest: "90s", desc: "Costas no encosto; pés à frente; desça até 90°; suba sem tirar lombar do apoio.", icon: "🦵", gif: "https://static.exercisedb.dev/media/5VCj6iH.gif" },
+      { name: "Elevação de joelhos", group: "Abdômen", focus: "Infra abdominal e flexão de quadril com controle", sets: 3, reps: "12-15 reps", rest: "45s", desc: "Braços apoiados; leve joelhos ao peito enrolando quadril; desça controlado sem balançar.", icon: "🎯", gif: "https://static.exercisedb.dev/media/03lzqwk.gif" },
+      { name: "Pallof press (polia)", group: "Abdômen", focus: "Antirrotação e estabilidade profunda do core", sets: 3, reps: "10-12 por lado", rest: "45s", desc: "De lado para a polia; pressione mãos à frente sem girar o tronco; segure 1-2s.", icon: "🎯", gif: "https://static.exercisedb.dev/media/9pa4H5m.gif" }
+    ]
+  },
+  {
+    name: "Push B", type: "push", day: 4,
+    exercises: [
+      { name: "Supino fechado Smith", group: "Tríceps", focus: "Tríceps e peitoral interno", sets: 3, reps: "8-10 reps", rest: "90s", desc: "Mãos mais fechadas que ombros; desça ao peito baixo; suba focando extensão dos cotovelos.", icon: "💪", gif: "https://static.exercisedb.dev/media/QyO6Uma.gif" },
+      { name: "Desenvolvimento máquina", group: "Ombros", focus: "Deltoide anterior e medial", sets: 3, reps: "8-12 reps", rest: "90s", desc: "Lombar apoiada; empurre acima da cabeça; desça até antebraço vertical sem forçar pescoço.", icon: "🎯", gif: "https://static.exercisedb.dev/media/67n3r98.gif" },
+      { name: "Peck deck", group: "Peito", focus: "Peitoral com ênfase na contração final", sets: 3, reps: "10-15 reps", rest: "60s", desc: "Braços semi-estendidos nas almofadas; junte na frente apertando 1s; retorne controlado.", icon: "🫁", gif: "https://static.exercisedb.dev/media/v3xmPAR.gif" },
+      { name: "Extensora tríceps (overhead máq.)", group: "Tríceps", focus: "Cabeça longa do tríceps", sets: 3, reps: "10-12 reps", rest: "75s", desc: "Costas apoiadas; cotovelos fixos pra cima; estenda até o topo; desça devagar.", icon: "💪", gif: "https://static.exercisedb.dev/media/2IxROQ1.gif" },
+      { name: "Crunch máquina", group: "Abdômen", focus: "Reto abdominal", sets: 3, reps: "12-15 reps", rest: "45s", desc: "Feche costelas ao quadril; não puxe com braços; retorne sem perder tensão.", icon: "🎯", gif: "https://static.exercisedb.dev/media/Wgaz7pm.gif" }
+    ]
+  },
+  {
+    name: "Pull B", type: "pull", day: 5,
+    exercises: [
+      { name: "Puxada neutra máquina", group: "Costas", focus: "Latíssimo e estabilidade escapular", sets: 3, reps: "8-12 reps", rest: "90s", desc: "Pegada neutra; peito alto; puxe até barra tocar peito; devolva controlado.", icon: "🦅", gif: "https://static.exercisedb.dev/media/4c9BhzB.gif" },
+      { name: "Remada máquina (Hammer)", group: "Costas", focus: "Espessura de dorsal, romboides e trapézio médio", sets: 3, reps: "8-12 reps", rest: "90s", desc: "Peito no pad; puxe cotovelos para trás retraindo escápulas; aperte 1s.", icon: "🦅", gif: "https://static.exercisedb.dev/media/7I6LNUG.gif" },
+      { name: "Rosca direta máquina", group: "Bíceps", focus: "Bíceps braquial", sets: 3, reps: "8-12 reps", rest: "75s", desc: "Cotovelos no pad; suba até contração máxima; desça em ~2s controlado.", icon: "💪", gif: "https://static.exercisedb.dev/media/q6y3OhV.gif" },
+      { name: "Shrugs no Smith", group: "Trapézio", focus: "Trapézio superior", sets: 3, reps: "12-15 reps", rest: "60s", desc: "Braços estendidos; eleve ombros às orelhas; pause 1s; desça devagar sem girar.", icon: "🎯", gif: "https://static.exercisedb.dev/media/OUQ0ZyW.gif" },
+      { name: "Crunch invertido (banco)", group: "Abdômen", focus: "Infra abdominal com retroversão pélvica", sets: 3, reps: "12-15 reps", rest: "45s", desc: "Segure banco atrás da cabeça; leve joelhos ao peito enrolando quadril; desça controlado.", icon: "🎯", gif: "https://static.exercisedb.dev/media/nCU1Ekp.gif" }
+    ]
+  }
+];
+
+const GROUP_COLORS = {
+  "Peito": "var(--peito)", "Tríceps": "var(--triceps)", "Costas": "var(--costas)",
+  "Bíceps": "var(--biceps)", "Pernas": "var(--pernas)", "Ombros": "var(--ombros)",
+  "Abdômen": "var(--abdomen)", "Trapézio": "var(--trapezio)"
+};
+
+const ACCENT_MAP = { push: "var(--accent-push)", pull: "var(--accent-pull)", legs: "var(--accent-legs)" };
+
+const MOTIVATIONAL = [
+  "Descanse, recupere e volte mais forte amanhã. 💤",
+  "Músculos crescem no descanso. Aproveite o dia off. 🧘",
+  "Hidrate-se, alongue-se e prepare-se pra próxima semana. 💧"
+];
+
+let currentDay = null;
+let timerInterval = null;
+let timerSeconds = 0;
+
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getDayOfWeek() {
+  return new Date().getDay(); // 0=dom, 1=seg...
+}
+
+function getWorkoutForToday() {
+  const dow = getDayOfWeek();
+  if (dow === 0 || dow === 6) return null;
+  return WORKOUTS[dow - 1];
+}
+
+function getTotalSets(workout) {
+  return workout.exercises.reduce((sum, ex) => sum + (ex.sets || 0), 0);
+}
+
+function getChecklist(dayIndex) {
+  const key = `workout_${getTodayKey()}_day${dayIndex}`;
+  const saved = localStorage.getItem(key);
+  return saved ? JSON.parse(saved) : [];
+}
+
+function saveChecklist(dayIndex, checked) {
+  const key = `workout_${getTodayKey()}_day${dayIndex}`;
+  localStorage.setItem(key, JSON.stringify(checked));
+}
+
+function getStreak() {
+  const streak = localStorage.getItem('workout_streak');
+  return streak ? JSON.parse(streak) : { count: 0, lastDate: null };
+}
+
+function updateStreak() {
+  const today = getTodayKey();
+  let streak = getStreak();
+  if (streak.lastDate === today) return;
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
+
+  if (streak.lastDate === yesterdayKey) {
+    streak.count++;
+  } else if (streak.lastDate !== today) {
+    streak.count = 1;
+  }
+  streak.lastDate = today;
+  localStorage.setItem('workout_streak', JSON.stringify(streak));
+}
+
+function renderTabs() {
+  const tabsEl = document.getElementById('tabs');
+  const days = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
+
+  tabsEl.innerHTML = WORKOUTS.map((w, i) => {
+    const active = i === currentDay ? 'active' : '';
+    return `<button class="tab ${active}" type="button" data-type="${w.type}" onclick="switchDay(${i})">${days[i]}<br><small>${w.name}</small></button>`;
+  }).join('') + `<button class="tab ${currentDay === null ? 'active' : ''}" type="button" data-type="rest" onclick="switchDay(-1)">🛋️<br><small>Rest</small></button>`;
+}
+
+function renderExercises(dayIndex) {
+  const list = document.getElementById('exerciseList');
+  const title = document.getElementById('title');
+  const workoutLabel = document.getElementById('workoutLabel');
+  const progressLabel = document.getElementById('progressLabel');
+  const setsLabel = document.getElementById('setsLabel');
+  const tipBox = document.getElementById('tipBox');
+
+  if (dayIndex === -1 || dayIndex === null) {
+    const msg = MOTIVATIONAL[Math.floor(Math.random() * MOTIVATIONAL.length)];
+    list.innerHTML = `<div class="rest-day"><div class="emoji">😴</div><h2>Dia de Descanso</h2><p>${msg}</p></div>`;
+    document.getElementById('progressBar').style.width = '0%';
+    title.textContent = 'Workout Tracker';
+    workoutLabel.textContent = 'Descanso';
+    progressLabel.textContent = '0 de 0';
+    setsLabel.textContent = '0';
+    tipBox.textContent = 'Use o dia off para recuperar, alongar e manter hidratação e passos leves.';
+    return;
+  }
+
+  const workout = WORKOUTS[dayIndex];
+  const checked = getChecklist(dayIndex);
+  const accent = ACCENT_MAP[workout.type];
+  title.textContent = workout.name;
+  workoutLabel.textContent = workout.name;
+  progressLabel.textContent = `${checked.length} de ${workout.exercises.length}`;
+  setsLabel.textContent = getTotalSets(workout);
+  tipBox.textContent = 'Cada card mostra foco muscular, séries, reps e descanso. Abra "Ver execução e técnica" só quando precisar.';
+
+  list.innerHTML = workout.exercises.map((ex, i) => {
+    const isDone = checked.includes(i);
+    const color = GROUP_COLORS[ex.group] || '#666';
+    return `
+      <button class="exercise-card ${isDone ? 'done' : ''}" id="card-${i}" type="button" onclick="toggleExercise(${dayIndex}, ${i}, event)">
+        <div class="card-image">
+          ${ex.gif ? `<img class="exercise-gif" src="${ex.gif}" alt="${ex.name}" loading="lazy" decoding="async" onload="this.parentElement.classList.add('has-gif')" onerror="this.remove()">` : ''}
+          <div class="fallback-media">
+            <div class="fallback-icon">${ex.icon}</div>
+            <span class="fallback-label">${ex.group.slice(0, 3).toUpperCase()}</span>
+          </div>
         </div>
-      </div>
-
-      <div class="progress-wrap" aria-label="Progresso do treino">
-        <div class="progress-label">
-          <span id="progressText">0 de 0 exercícios</span>
-          <span id="progressPct">0%</span>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-      </div>
-
-      <div class="summary-grid">
-        <div class="summary-card" data-icon="📅">
-          <span>Treino</span>
-          <strong id="summaryWorkout">Descanso</strong>
-        </div>
-        <div class="summary-card" data-icon="◔">
-          <span>Progresso</span>
-          <strong id="summaryProgress">0%</strong>
-        </div>
-        <div class="summary-card" data-icon="☰">
-          <span>Séries</span>
-          <strong id="summarySets">0</strong>
-        </div>
-      </div>
-
-      <div class="tip" id="tipBox"></div>
-    </section>
-
-    <section aria-label="Divisão semanal">
-      <h2 class="section-title">Semana</h2>
-      <div class="week-strip" id="weekStrip"></div>
-    </section>
-
-    <nav class="tabs" id="tabs" aria-label="Selecionar treino"></nav>
-
-    <section aria-label="Exercícios">
-      <h2 class="section-title" id="listTitle">Exercícios</h2>
-      <div class="workout-list" id="workoutList"></div>
-    </section>
-  </main>
-
-  <footer class="timer" aria-label="Timer de descanso">
-    <div class="timer-inner">
-      <div class="timer-bar">
-        <div>
-          <p class="timer-label">Descanso</p>
-          <div class="timer-display" id="timerDisplay">01:00</div>
-        </div>
-        <button class="timer-action" id="timerToggle" type="button">Iniciar</button>
-      </div>
-      <div class="quick-buttons" id="quickButtons">
-        <button class="quick" type="button" data-seconds="45">45s</button>
-        <button class="quick active" type="button" data-seconds="60">60s</button>
-        <button class="quick" type="button" data-seconds="75">75s</button>
-        <button class="quick" type="button" data-seconds="90">90s</button>
-      </div>
-    </div>
-  </footer>
-
-  <div class="confetti" id="confetti" aria-hidden="true"></div>
-
-  <script>
-    const STORAGE_KEY = "workout-tracker-v1";
-    const STREAK_KEY = "workout-tracker-streak-v1";
-    const dayMap = {
-      1: "push-a",
-      2: "pull-a",
-      3: "legs",
-      4: "push-b",
-      5: "pull-b"
-    };
-    const exerciseMedia = {
-      "push-a-0": { emoji: "🏋️‍♂️", gifUrl: "https://static.exercisedb.dev/media/DOoWcnA.gif" },
-      "push-a-1": { emoji: "🏋️‍♂️", gifUrl: "https://static.exercisedb.dev/media/jHAnWmT.gif" },
-      "push-a-2": { emoji: "🔻", gifUrl: "https://static.exercisedb.dev/media/Ser9eQp.gif" },
-      "push-a-3": { emoji: "🔻", gifUrl: "https://static.exercisedb.dev/media/3ZflifB.gif" },
-      "push-a-4": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/Wgaz7pm.gif" },
-      "pull-a-0": { emoji: "🦅", gifUrl: "https://static.exercisedb.dev/media/7F1DVzn.gif" },
-      "pull-a-1": { emoji: "💪", gifUrl: "https://static.exercisedb.dev/media/b6hQYMb.gif" },
-      "pull-a-2": { emoji: "💪", gifUrl: "https://static.exercisedb.dev/media/OAguZoG.gif" },
-      "pull-a-3": { emoji: "🛡️", gifUrl: "https://static.exercisedb.dev/media/8DiFDVA.gif" },
-      "pull-a-4": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/5VXmnV5.gif" },
-      "legs-0": { emoji: "🦵", gifUrl: "https://static.exercisedb.dev/media/10Z2DXU.gif" },
-      "legs-1": { emoji: "🦵", gifUrl: "https://static.exercisedb.dev/media/1bQkKZK.gif" },
-      "legs-2": { emoji: "🦵", gifUrl: "https://static.exercisedb.dev/media/5VCj6iH.gif" },
-      "legs-3": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/03lzqwk.gif" },
-      "legs-4": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/9pa4H5m.gif" },
-      "push-b-0": { emoji: "🔻", gifUrl: "https://static.exercisedb.dev/media/QyO6Uma.gif" },
-      "push-b-1": { emoji: "🛡️", gifUrl: "https://static.exercisedb.dev/media/67n3r98.gif" },
-      "push-b-2": { emoji: "💥", gifUrl: "https://static.exercisedb.dev/media/v3xmPAR.gif" },
-      "push-b-3": { emoji: "🔻", gifUrl: "https://static.exercisedb.dev/media/2IxROQ1.gif" },
-      "push-b-4": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/Wgaz7pm.gif" },
-      "pull-b-0": { emoji: "🦅", gifUrl: "https://static.exercisedb.dev/media/4c9BhzB.gif" },
-      "pull-b-1": { emoji: "🦅", gifUrl: "https://static.exercisedb.dev/media/7I6LNUG.gif" },
-      "pull-b-2": { emoji: "💪", gifUrl: "https://static.exercisedb.dev/media/q6y3OhV.gif" },
-      "pull-b-3": { emoji: "⛰️", gifUrl: "https://static.exercisedb.dev/media/OUQ0ZyW.gif" },
-      "pull-b-4": { emoji: "🔥", gifUrl: "https://static.exercisedb.dev/media/nCU1Ekp.gif" }
-    };
-    const workouts = [
-      {
-        id: "push-a",
-        label: "Push A",
-        week: "Seg",
-        tip: "Peito primeiro, tríceps depois e abdômen no fechamento. Use o timer para manter a sessão redonda.",
-        exercises: [
-          { name: "Supino máquina plano", group: "Peito", focus: "Peitoral médio, deltoide anterior e tríceps", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Escápulas retraídas no apoio; empurre até estender sem travar cotovelos; desça controlado até sentir alongamento no peito." },
-          { name: "Supino máquina inclinado", group: "Peito", focus: "Peitoral superior e tríceps", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Banco ~30°; empurre na linha do queixo; desça até antebraços ficarem verticais." },
-          { name: "Tríceps máquina (extensora)", group: "Tríceps", focus: "Cabeça lateral e medial do tríceps", sets: 3, reps: "10-12 reps", rest: "75s", technique: "Cotovelos alinhados com o eixo; estenda até o fim; retorne devagar sem deixar o peso cair." },
-          { name: "Tríceps pushdown (polia)", group: "Tríceps", focus: "Tríceps com ênfase no final da extensão", sets: 3, reps: "10-15 reps", rest: "60s", technique: "Barra reta ou V; cotovelos colados ao corpo; estenda até embaixo; volte só até 90°." },
-          { name: "Crunch máquina", group: "Abdômen", focus: "Reto abdominal", sets: 3, reps: "12-15 reps", rest: "45s", technique: "Segure as alças; feche costelas em direção ao quadril; retorne sem soltar a tensão." }
-        ]
-      },
-      {
-        id: "pull-a",
-        label: "Pull A",
-        week: "Ter",
-        tip: "Pense em puxar com cotovelos, não só com as mãos. O abdômen fecha o treino com estabilidade.",
-        exercises: [
-          { name: "Puxada frente supinada", group: "Costas", focus: "Latíssimo, redondo maior e bíceps", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Pegada supinada; peito alto; puxe cotovelos para o bolso; devolva esticando sem soltar escápulas." },
-          { name: "Rosca Scott máquina", group: "Bíceps", focus: "Bíceps braquial com menos roubo do ombro", sets: 3, reps: "8-12 reps", rest: "75s", technique: "Braços apoiados no pad; suba sem mover ombros; desça até quase estender sem hiperextender." },
-          { name: "Rosca máquina pegada neutra", group: "Bíceps", focus: "Braquial e braquiorradial", sets: 3, reps: "10-12 reps", rest: "60s", technique: "Polegar pra cima; cotovelos fixos; suba controlado; desça em ~2s sem balançar." },
-          { name: "Face pull (polia, corda)", group: "Ombros", focus: "Deltoide posterior, trapézio médio e manguito", sets: 3, reps: "12-15 reps", rest: "60s", technique: "Polia na altura do rosto; puxe abrindo a corda para as têmporas; aperte 1s atrás." },
-          { name: "Prancha lateral", group: "Abdômen", focus: "Oblíquos e estabilidade lateral do core", sets: 3, reps: "30-45s", rest: "45s", technique: "Antebraço no chão, corpo em linha; quadril alto e alinhado; segure sem deixar cair." }
-        ]
-      },
-      {
-        id: "legs",
-        label: "Legs",
-        week: "Qua",
-        tip: "Pernas pedem controle e amplitude boa. Abdômen entra no final para proteger a postura e fechar bem.",
-        exercises: [
-          { name: "Leg press · Quadríceps/Glúteos", group: "Pernas", focus: "Quadríceps como motor principal com apoio de glúteos", sets: 3, reps: "10-15 reps", rest: "90s", technique: "Pés na largura dos ombros; desça até ~90° de joelho; suba sem travar joelhos no topo." },
-          { name: "Stiff no Smith · Posteriores/Glúteos", group: "Pernas", focus: "Posteriores de coxa e glúteos", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Coluna neutra; empurre quadril para trás deslizando a barra; suba apertando glúteos." },
-          { name: "Hack squat · Quadríceps", group: "Pernas", focus: "Quadríceps com alta estabilidade", sets: 3, reps: "10-12 reps", rest: "90s", technique: "Costas no encosto; pés à frente; desça até 90°; suba sem tirar lombar do apoio." },
-          { name: "Elevação de joelhos", group: "Abdômen", focus: "Infra abdominal e flexão de quadril com controle", sets: 3, reps: "12-15 reps", rest: "45s", technique: "Braços apoiados; leve joelhos ao peito enrolando quadril; desça controlado sem balançar." },
-          { name: "Pallof press (polia)", group: "Abdômen", focus: "Antirrotação e estabilidade profunda do core", sets: 3, reps: "10-12 por lado", rest: "45s", technique: "De lado para a polia; pressione mãos à frente sem girar o tronco; segure 1-2s." }
-        ]
-      },
-      {
-        id: "push-b",
-        label: "Push B",
-        week: "Qui",
-        tip: "Hoje o empurrar fica mais vertical e focado em tríceps. Faça as repetições sem pressa.",
-        exercises: [
-          { name: "Supino fechado Smith", group: "Tríceps", focus: "Tríceps e peitoral interno", sets: 3, reps: "8-10 reps", rest: "90s", technique: "Mãos mais fechadas que ombros; desça ao peito baixo; suba focando extensão dos cotovelos." },
-          { name: "Desenvolvimento máquina", group: "Ombros", focus: "Deltoide anterior e medial", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Lombar apoiada; empurre acima da cabeça; desça até antebraço vertical sem forçar pescoço." },
-          { name: "Peck deck", group: "Peito", focus: "Peitoral com ênfase na contração final", sets: 3, reps: "10-15 reps", rest: "60s", technique: "Braços semi-estendidos nas almofadas; junte na frente apertando 1s; retorne controlado." },
-          { name: "Extensora tríceps (overhead máq.)", group: "Tríceps", focus: "Cabeça longa do tríceps", sets: 3, reps: "10-12 reps", rest: "75s", technique: "Costas apoiadas; cotovelos fixos pra cima; estenda até o topo; desça devagar." },
-          { name: "Crunch máquina", group: "Abdômen", focus: "Reto abdominal", sets: 3, reps: "12-15 reps", rest: "45s", technique: "Feche costelas ao quadril; não puxe com braços; retorne sem perder tensão." }
-        ]
-      },
-      {
-        id: "pull-b",
-        label: "Pull B",
-        week: "Sex",
-        tip: "Costas completas, bíceps e trapézio. O core fica no fim para encerrar com controle.",
-        exercises: [
-          { name: "Puxada neutra máquina", group: "Costas", focus: "Latíssimo e estabilidade escapular", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Pegada neutra; peito alto; puxe até barra tocar peito; devolva controlado." },
-          { name: "Remada máquina (Hammer)", group: "Costas", focus: "Espessura de dorsal, romboides e trapézio médio", sets: 3, reps: "8-12 reps", rest: "90s", technique: "Peito no pad; puxe cotovelos para trás retraindo escápulas; aperte 1s." },
-          { name: "Rosca direta máquina", group: "Bíceps", focus: "Bíceps braquial", sets: 3, reps: "8-12 reps", rest: "75s", technique: "Cotovelos no pad; suba até contração máxima; desça em ~2s controlado." },
-          { name: "Shrugs no Smith", group: "Trapézio", focus: "Trapézio superior", sets: 3, reps: "12-15 reps", rest: "60s", technique: "Braços estendidos; eleve ombros às orelhas; pause 1s; desça devagar sem girar." },
-          { name: "Crunch invertido (banco)", group: "Abdômen", focus: "Infra abdominal com retroversão pélvica", sets: 3, reps: "12-15 reps", rest: "45s", technique: "Segure banco atrás da cabeça; leve joelhos ao peito enrolando quadril; desça controlado." }
-        ]
-      }
-    ];
-
-    const restDay = {
-      id: "rest",
-      label: "Descanso",
-      tip: "Hoje é dia de recuperar. Caminhada leve, água e sono contam como parte do treino.",
-      exercises: []
-    };
-
-    const state = {
-      selectedId: dayMap[new Date().getDay()] || "rest",
-      storage: readJson(STORAGE_KEY, {}),
-      streak: readJson(STREAK_KEY, { count: 0, lastDone: "" }),
-      timerSeconds: 60,
-      timerLeft: 60,
-      timerRunning: false,
-      timerId: null
-    };
-
-    const els = {
-      mainTitle: document.getElementById("mainTitle"),
-      todayLabel: document.getElementById("todayLabel"),
-      streakBadge: document.getElementById("streakBadge"),
-      progressText: document.getElementById("progressText"),
-      progressPct: document.getElementById("progressPct"),
-      progressFill: document.getElementById("progressFill"),
-      summaryWorkout: document.getElementById("summaryWorkout"),
-      summaryProgress: document.getElementById("summaryProgress"),
-      summarySets: document.getElementById("summarySets"),
-      tipBox: document.getElementById("tipBox"),
-      weekStrip: document.getElementById("weekStrip"),
-      tabs: document.getElementById("tabs"),
-      listTitle: document.getElementById("listTitle"),
-      workoutList: document.getElementById("workoutList"),
-      timerDisplay: document.getElementById("timerDisplay"),
-      timerToggle: document.getElementById("timerToggle"),
-      quickButtons: document.getElementById("quickButtons"),
-      confetti: document.getElementById("confetti")
-    };
-
-    function readJson(key, fallback) {
-      try {
-        return JSON.parse(localStorage.getItem(key)) || fallback;
-      } catch {
-        return fallback;
-      }
-    }
-
-    function saveJson(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-
-    function todayKey() {
-      const now = new Date();
-      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-    }
-
-    function selectedWorkout() {
-      return workouts.find(workout => workout.id === state.selectedId) || restDay;
-    }
-
-    function workoutStorageKey(workoutId) {
-      return `${todayKey()}-${workoutId}`;
-    }
-
-    function completedFor(workoutId) {
-      return state.storage[workoutStorageKey(workoutId)] || [];
-    }
-
-    function updateStreakIfNeeded(workoutId, completed, total) {
-      const today = todayKey();
-      if (!total || completed.length !== total || state.streak.lastDone === today) return;
-
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
-      const nextCount = state.streak.lastDone === yesterdayKey ? state.streak.count + 1 : 1;
-      state.streak = { count: nextCount, lastDone: today, workoutId };
-      saveJson(STREAK_KEY, state.streak);
-      launchConfetti();
-    }
-
-    function render() {
-      const workout = selectedWorkout();
-      const isRest = workout.id === "rest";
-      const completed = isRest ? [] : completedFor(workout.id);
-      const total = workout.exercises.length;
-      updateStreakIfNeeded(workout.id, completed, total);
-      const pct = total ? Math.round((completed.length / total) * 100) : 0;
-      const sets = isRest ? 0 : workout.exercises.reduce((sum, exercise) => sum + exercise.sets, 0);
-
-      els.todayLabel.textContent = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long" }).format(new Date());
-      els.mainTitle.textContent = workout.label;
-      els.streakBadge.textContent = `${state.streak.count || 0} ${state.streak.count === 1 ? "dia" : "dias"}`;
-      els.progressText.textContent = `${completed.length} de ${total} exercícios`;
-      els.progressPct.textContent = `${pct}%`;
-      els.progressFill.style.width = `${pct}%`;
-      els.summaryWorkout.textContent = workout.label;
-      els.summaryProgress.textContent = `${pct}%`;
-      els.summarySets.textContent = `${sets}`;
-      els.tipBox.textContent = isRest ? restDay.tip : workout.tip;
-      els.listTitle.textContent = isRest ? "Hoje é descanso" : "Exercícios";
-
-      renderWeek();
-      renderTabs();
-      renderWorkoutList(workout, completed);
-    }
-
-    function renderWeek() {
-      const items = [
-        ["Seg", "Push A", "push-a"],
-        ["Ter", "Pull A", "pull-a"],
-        ["Qua", "Legs", "legs"],
-        ["Qui", "Push B", "push-b"],
-        ["Sex", "Pull B", "pull-b"]
-      ];
-
-      els.weekStrip.innerHTML = items.map(([day, label, id]) => (
-        `<span class="week-pill ${id === state.selectedId ? "active" : ""}">${day} ${label}</span>`
-      )).join("");
-    }
-
-    function renderTabs() {
-      const tabs = [...workouts, restDay];
-      els.tabs.innerHTML = tabs.map(workout => (
-        `<button class="tab ${workout.id === state.selectedId ? "active" : ""}" type="button" data-id="${workout.id}">${workout.label}</button>`
-      )).join("");
-
-      els.tabs.querySelectorAll(".tab").forEach(tab => {
-        tab.addEventListener("click", () => {
-          state.selectedId = tab.dataset.id;
-          render();
-        });
-      });
-    }
-
-    function renderWorkoutList(workout, completed) {
-      if (workout.id === "rest") {
-        els.workoutList.innerHTML = `<div class="rest-card"><strong>Recuperar também é treino.</strong><span>Sem checklist hoje. Progresso e séries previstas ficam zerados para preservar o dia off.</span></div>`;
-        return;
-      }
-
-      els.workoutList.innerHTML = workout.exercises.map((exercise, index) => {
-        const done = completed.includes(index);
-        const media = exerciseMedia[`${workout.id}-${index}`] || { emoji: "🏋️‍♂️", gifUrl: "" };
-        return `
-          <article class="exercise-card ${done ? "done" : ""}" data-group="${exercise.group}">
-            <button class="exercise-main" type="button" data-index="${index}" aria-pressed="${done}">
-              <div class="exercise-visual" aria-hidden="true">
-                ${media.gifUrl ? `<img src="${media.gifUrl}" alt="" loading="lazy" decoding="async">` : ""}
-                <span class="exercise-emoji">${media.emoji}</span>
-                <span class="source-pill">ExerciseDB</span>
-              </div>
-              <div class="exercise-head">
-                <div>
-                  <span class="exercise-label">${exercise.group}</span>
-                  <h3 class="exercise-name">${exercise.name}</h3>
-                </div>
-                <span class="check">✓</span>
-              </div>
-              <p class="exercise-focus">${exercise.focus}</p>
-              <div class="exercise-meta" aria-label="Detalhes do exercício">
-                <span class="meta-chip">${exercise.sets} séries</span>
-                <span class="meta-chip">${exercise.reps}</span>
-                <span class="meta-chip">${exercise.rest}</span>
-              </div>
-            </button>
+        <div class="card-content">
+          <span class="badge" style="background: ${color}20; color: ${color};">${ex.group}</span>
+          <div class="exercise-name">${ex.name}</div>
+          <div class="exercise-focus">${ex.focus}</div>
+          <div class="exercise-meta">
+            <span class="meta-pill">${ex.sets} séries</span>
+            <span class="meta-pill">${ex.reps}</span>
+            <span class="meta-pill">Descanso ${ex.rest}</span>
+          </div>
+          <div class="exercise-reps">Marque quando terminar todas as séries previstas.</div>
+          <div class="exercise-desc">
             <details>
-              <summary>Ver execução e técnica</summary>
-              <p class="technique">${exercise.technique}</p>
+              <summary><span class="desc-preview">Ver execução e técnica</span></summary>
+              <span class="desc-full">${ex.desc}</span>
             </details>
-          </article>
-        `;
-      }).join("");
+          </div>
+        </div>
+        <div class="check-circle">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
+      </button>`;
+  }).join('');
 
-      els.workoutList.querySelectorAll(".exercise-main").forEach(button => {
-        button.addEventListener("click", () => toggleExercise(workout.id, Number(button.dataset.index)));
-      });
+  updateProgress(dayIndex);
+  document.getElementById('progressBar').style.background = accent;
+}
 
-      els.workoutList.querySelectorAll(".exercise-visual img").forEach(image => {
-        image.addEventListener("load", () => image.classList.add("loaded"));
-        image.addEventListener("error", () => image.remove());
-        if (image.complete && image.naturalWidth) image.classList.add("loaded");
-      });
-    }
+function toggleExercise(dayIndex, exIndex, event) {
+  if (event && event.target.closest('details')) return;
+  let checked = getChecklist(dayIndex);
+  if (checked.includes(exIndex)) {
+    checked = checked.filter(i => i !== exIndex);
+  } else {
+    checked.push(exIndex);
+    const card = document.getElementById(`card-${exIndex}`);
+    card.classList.add('just-checked');
+    setTimeout(() => card.classList.remove('just-checked'), 300);
+  }
+  saveChecklist(dayIndex, checked);
+  renderExercises(dayIndex);
 
-    function toggleExercise(workoutId, index) {
-      const key = workoutStorageKey(workoutId);
-      const current = new Set(state.storage[key] || []);
-      current.has(index) ? current.delete(index) : current.add(index);
-      state.storage[key] = [...current].sort((a, b) => a - b);
-      saveJson(STORAGE_KEY, state.storage);
-      render();
-    }
+  // Check if all done
+  if (checked.length === WORKOUTS[dayIndex].exercises.length) {
+    updateStreak();
+    document.getElementById('streakCount').textContent = getStreak().count;
+    launchConfetti();
+  }
+}
 
-    function formatTime(seconds) {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-    }
+function updateProgress(dayIndex) {
+  const checked = getChecklist(dayIndex);
+  const total = WORKOUTS[dayIndex].exercises.length;
+  const pct = (checked.length / total) * 100;
+  document.getElementById('progressBar').style.width = `${pct}%`;
+  document.getElementById('progressLabel').textContent = `${checked.length} de ${total}`;
+}
 
-    function setTimer(seconds) {
-      state.timerSeconds = seconds;
-      state.timerLeft = seconds;
-      state.timerRunning = false;
-      clearInterval(state.timerId);
-      els.timerToggle.textContent = "Iniciar";
-      els.timerDisplay.textContent = formatTime(state.timerLeft);
-      document.querySelectorAll(".quick").forEach(button => {
-        button.classList.toggle("active", Number(button.dataset.seconds) === seconds);
-      });
-    }
+function switchDay(dayIndex) {
+  currentDay = dayIndex === -1 ? null : dayIndex;
+  renderTabs();
+  renderExercises(dayIndex);
+}
 
-    function toggleTimer() {
-      if (state.timerRunning) {
-        state.timerRunning = false;
-        clearInterval(state.timerId);
-        els.timerToggle.textContent = "Iniciar";
-        return;
+// Timer
+function setTimer(seconds) {
+  timerSeconds = seconds;
+  document.getElementById('timerDisplay').textContent = formatTime(seconds);
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  document.getElementById('timerStartBtn').textContent = '▶';
+}
+
+function toggleTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    document.getElementById('timerStartBtn').textContent = '▶';
+  } else {
+    if (timerSeconds <= 0) timerSeconds = 90;
+    document.getElementById('timerStartBtn').textContent = '⏸';
+    timerInterval = setInterval(() => {
+      timerSeconds--;
+      document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
+      if (timerSeconds <= 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        document.getElementById('timerDisplay').textContent = '✅';
+        document.getElementById('timerStartBtn').textContent = '▶';
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
       }
+    }, 1000);
+  }
+}
 
-      state.timerRunning = true;
-      els.timerToggle.textContent = "Pausar";
-      state.timerId = setInterval(() => {
-        state.timerLeft -= 1;
-        els.timerDisplay.textContent = formatTime(Math.max(state.timerLeft, 0));
-        if (state.timerLeft <= 0) {
-          clearInterval(state.timerId);
-          state.timerRunning = false;
-          els.timerToggle.textContent = "Iniciar";
-          state.timerLeft = state.timerSeconds;
-          if ("vibrate" in navigator) navigator.vibrate([160, 80, 160]);
-          setTimeout(() => els.timerDisplay.textContent = formatTime(state.timerLeft), 900);
-        }
-      }, 1000);
-    }
+function formatTime(s) {
+  const min = Math.floor(s / 60);
+  const sec = s % 60;
+  return min > 0 ? `${min}:${String(sec).padStart(2,'0')}` : `${sec}s`;
+}
 
-    function launchConfetti() {
-      const colors = ["#9f6248", "#6d8a6f", "#d9bc98", "#724332", "#f5dfa8"];
-      els.confetti.innerHTML = "";
-      for (let i = 0; i < 44; i += 1) {
-        const piece = document.createElement("i");
-        piece.style.left = `${Math.random() * 100}%`;
-        piece.style.background = colors[i % colors.length];
-        piece.style.animationDelay = `${Math.random() * 280}ms`;
-        piece.style.transform = `rotate(${Math.random() * 180}deg)`;
-        els.confetti.appendChild(piece);
-      }
-      setTimeout(() => els.confetti.innerHTML = "", 1500);
-    }
+// Confetti
+function launchConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-    els.timerToggle.addEventListener("click", toggleTimer);
-    els.quickButtons.querySelectorAll(".quick").forEach(button => {
-      button.addEventListener("click", () => setTimer(Number(button.dataset.seconds)));
+  const particles = Array.from({length: 80}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10,
+    size: Math.random() * 8 + 4,
+    speedY: Math.random() * 3 + 2,
+    speedX: (Math.random() - 0.5) * 4,
+    color: ['#f97316','#3b82f6','#22c55e','#eab308','#a855f7','#ef4444'][Math.floor(Math.random()*6)],
+    rotation: Math.random() * 360
+  }));
+
+  let frame = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.y += p.speedY;
+      p.x += p.speedX;
+      p.rotation += 3;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.6);
+      ctx.restore();
     });
+    frame++;
+    if (frame < 120) requestAnimationFrame(animate);
+    else { canvas.style.display = 'none'; ctx.clearRect(0,0,canvas.width,canvas.height); }
+  }
+  animate();
+}
 
-    render();
-    setTimer(60);
-  </script>
+// Init
+function init() {
+  const now = new Date();
+  const options = { weekday: 'long', day: 'numeric', month: 'long' };
+  document.getElementById('dateDisplay').textContent = now.toLocaleDateString('pt-BR', options);
+  document.getElementById('streakCount').textContent = getStreak().count;
+
+  const todayWorkout = getWorkoutForToday();
+  if (todayWorkout) {
+    currentDay = todayWorkout.day - 1;
+    document.getElementById('title').textContent = todayWorkout.name;
+  } else {
+    currentDay = null;
+  }
+
+  renderTabs();
+  renderExercises(currentDay === null ? -1 : currentDay);
+}
+
+init();
+</script>
 </body>
 </html>
